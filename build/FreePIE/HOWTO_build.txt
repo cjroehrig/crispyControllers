@@ -1,0 +1,39 @@
+#==============================================================================
+# HOWTO build FreePIE - console version, patched (cywgin)
+# (to copy and paste -- don't run!)
+# CJR Jun 2020
+#
+	# -------------------------------------------------
+	# Check/update Visual Studio path:
+	cat ./CJRStuff/BuildTools/CJRSetupBuild.bat
+
+	# Ensure vJoy dlls are up-to-date:
+	PF="/cygdrive/c/Program Files"
+	ls -l "$PF/vJoy/x86/"vJoyInterface*.dll PKG/VJoy/*
+	cp -p "$PF/vJoy/x86/"vJoyInterface*.dll PKG/VJoy/
+	chmod 644 PKG/VJoy/*.dll
+
+	# fetch and patch the source (into a fresh FreePIE directory)
+	# Copies from FreePIE.GITHUB if it exists; otherwise it fetches it
+	./CJRStuff/Scripts/GET-FreePIE.sh
+
+	# build FreePIE
+	./CJRStuff/Scripts/BUILD-FreePIE.sh
+
+	# Replace existing PKG and clean up
+	rm -rf ../../INSTALL/FreePIE
+	mv FreePIE/Output ../../INSTALL/FreePIE
+
+	# Clean up
+	./CJRStuff/Scripts/CLEAN.sh  FreePIE
+
+	# Install it
+	../../INSTALL/INSTALL_FreePIE.sh
+
+#==============================================================================
+# TODO:
+# HOWTO build ViGEm plugin
+# ----------------------------
+	./GET-vigem.sh      # fetch and patch the plugins
+	./BUILD-vigem.sh    # build & install extra plugins
+	./CLEAN.sh vigem    # clean up any object stuff

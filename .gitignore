@@ -1,0 +1,38 @@
+#==================================================
+# Blacklist (Last match has precedence)
+
+# exclude everything in the root by default
+/*
+
+# Python caches anywhere
+__pycache__/
+*.py[cod]
+*$py.class
+
+#==================================================
+# /build
+/build/FreePIE/*/
+!/build/FreePIE/CJRStuff/
+
+# Exclude downloads, builds, dev notes
+INSTALL/FreePIE/
+PKG/
+/Utils
+/dev
+/Lib/pylib/TODO/
+
+
+#==================================================
+# Whitelist
+
+# Explicitly include our main files:
+!/main.py
+!/main.ahk
+!/config.ahk
+!/README.md
+!/.gitignore
+!/Games/
+!/Lib/
+!/INSTALL/
+!/build/
+
