@@ -1,0 +1,65 @@
+diff -r FreePIE/FreePIE.Core/Model/Events/ScriptErrorEvent.cs ../../../../build/FreePIE/FreePIE/FreePIE.Core/Model/Events/ScriptErrorEvent.cs
+11c11
+<         public ScriptErrorEvent(ErrorLevel level, string description, string file, int? lineNumber)
+---
+>         public ScriptErrorEvent(ErrorLevel level, string description, int? lineNumber)
+15d14
+< 			FileName = file;
+21d19
+<         public string FileName { get; private set; }
+Only in ../../../../build/FreePIE/FreePIE/FreePIE.Core/Model/Events: TrayNotificationEvent.cs
+diff -r FreePIE/FreePIE.Core/ScriptEngine/Python/PythonScriptEngine.cs ../../../../build/FreePIE/FreePIE/FreePIE.Core/ScriptEngine/Python/PythonScriptEngine.cs
+26a27
+> using IronPython.Runtime.Exceptions;
+254,260c255
+< 			// CJR
+<             var fileName = stack
+<                 .Select(s => (string)s.GetFileName())
+<                 .FirstOrDefault();
+< 
+< 
+<             if(!lineNumber.HasValue && e is SyntaxErrorException) {
+---
+>             if(!lineNumber.HasValue && e is SyntaxErrorException)
+262,269d256
+< 			}
+< 
+< 			// CJR: if it's our window document
+< 			if(fileName=="<string>") {
+< 				fileName="window";
+< 				// adjust for imports we auto-added
+< 				lineNumber -= startingLine;
+< 			}
+270a258
+>             lineNumber -= startingLine;
+279c267
+<                     eventAggregator.Publish(new ScriptErrorEvent(ErrorLevel.Exception, e.Message, fileName, lineNumber));
+---
+>                     eventAggregator.Publish(new ScriptErrorEvent(ErrorLevel.Exception, e.Message, lineNumber));
+diff -r FreePIE/FreePIE.Core/ScriptEngine/Python/PythonScriptParser.cs ../../../../build/FreePIE/FreePIE/FreePIE.Core/ScriptEngine/Python/PythonScriptParser.cs
+120,121c120
+< //CJR            return FindAndInitMethodsThatNeedIndexer(script, globals);
+< 			return script;
+---
+>             return FindAndInitMethodsThatNeedIndexer(script, globals);
+140c139
+<                 .Select(m => new ScriptErrorEvent(ErrorLevel.Warning, string.Format("{0} marked as deprecated, use {1}", m.Info.Deprecated, m.Info.ReplacedWith), "CJR XXX UNKNOWN", GetLineNumber(script, m.IndexOf)))
+---
+>                 .Select(m => new ScriptErrorEvent(ErrorLevel.Warning, string.Format("{0} marked as deprecated, use {1}", m.Info.Deprecated, m.Info.ReplacedWith), GetLineNumber(script, m.IndexOf)))
+diff -r FreePIE/FreePIE.GUI/Views/Script/Output/ErrorViewModel.cs ../../../../build/FreePIE/FreePIE/FreePIE.GUI/Views/Script/Output/ErrorViewModel.cs
+9c9
+<         public ErrorViewModel(string description, ImageSource icon, string file, int? line)
+---
+>         public ErrorViewModel(string description, ImageSource icon, int? line)
+11d10
+< 			File = file;
+21d19
+<         public string File { get; private set; }
+diff -r FreePIE/FreePIE.GUI/Views/Script/Output/ErrorsView.xaml ../../../../build/FreePIE/FreePIE/FreePIE.GUI/Views/Script/Output/ErrorsView.xaml
+24d23
+<                 <DataGridTextColumn Header="File" Binding="{ Binding File}"></DataGridTextColumn>
+diff -r FreePIE/FreePIE.GUI/Views/Script/Output/ErrorsViewModel.cs ../../../../build/FreePIE/FreePIE/FreePIE.GUI/Views/Script/Output/ErrorsViewModel.cs
+33c33
+<             Errors.Add(new ErrorViewModel(message.Description, levelImages[message.Level], message.FileName, message.LineNumber));
+---
+>             Errors.Add(new ErrorViewModel(message.Description, levelImages[message.Level], message.LineNumber));

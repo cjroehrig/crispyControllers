@@ -1,0 +1,50 @@
+# https://github.com/AndersMalmgren/FreePIE/issues/193
+diff -ruN FreePIE.GITHUB/FreePIE.Core.Plugins/JoystickPlugin.cs FreePIE/FreePIE.Core.Plugins/JoystickPlugin.cs
+--- FreePIE.GITHUB/FreePIE.Core.Plugins/JoystickPlugin.cs	2020-06-11 16:49:30.000000000 -0700
++++ FreePIE/FreePIE.Core.Plugins/JoystickPlugin.cs	2020-09-04 21:39:47.979024600 -0700
+@@ -24,10 +24,13 @@
+             var creator = new Func<DeviceInstance, JoystickGlobal>(d =>
+             {
+                 var controller = new Joystick(directInput, d.InstanceGuid);
+-                controller.SetCooperativeLevel(handle, CooperativeLevel.Exclusive | CooperativeLevel.Background);
++                if (handle != IntPtr.Zero) {
++                    controller.SetCooperativeLevel(handle, CooperativeLevel.Exclusive | CooperativeLevel.Background);
++                }
++                
+                 controller.Acquire();
+ 
+-                var device = new Device(controller);
++                var device = new Device(controller, handle);
+                 devices.Add(device);
+                 return new JoystickGlobal(device);
+             });
+@@ -60,10 +63,12 @@
+         private readonly Joystick joystick;
+         private JoystickState state;
+         private readonly GetPressedStrategy<int> getPressedStrategy;
++        private readonly IntPtr winhandle;
+ 
+-        public Device(Joystick joystick)
++        public Device(Joystick joystick, IntPtr winhandle)
+         {
+             this.joystick = joystick;
++            this.winhandle = winhandle;
+             SetRange(-1000, 1000);
+             getPressedStrategy = new GetPressedStrategy<int>(GetDown);
+         }
+@@ -75,7 +80,14 @@
+ 
+         public JoystickState State
+         {
+-            get { return state ?? (state = joystick.GetCurrentState()); }
++            get {
++                if ( this.winhandle == IntPtr.Zero ){
++                    // Console app
++                    joystick.Poll();
++                    state = null;
++                }
++                return state ?? (state = joystick.GetCurrentState());
++            }
+         }
+ 
+         public void Reset()

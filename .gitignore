@@ -1,8 +1,11 @@
 #==================================================
 # Blacklist (Last match has precedence)
 
-# exclude everything in the root by default
-/*
+# exclude test cruft in the root (except whitelist below)
+/*.py
+/*.ahk
+# exclude the Windows symlink
+/crispy
 
 # Python caches anywhere
 __pycache__/
@@ -10,16 +13,15 @@ __pycache__/
 *$py.class
 
 #==================================================
-# /build
-/build/FreePIE/*/
-!/build/FreePIE/CJRStuff/
+# /build - exclude all FreePIE build dirs
+/build/FreePIE/FreePIE*/
 
-# Exclude downloads, builds, dev notes
-INSTALL/FreePIE/
-PKG/
+# Exclude builds, tools, dev notes, downloads
+/INSTALL/FreePIE/
 /Utils
 /dev
 /Lib/pylib/TODO/
+PKG/
 
 
 #==================================================
@@ -35,4 +37,3 @@ PKG/
 !/Lib/
 !/INSTALL/
 !/build/
-

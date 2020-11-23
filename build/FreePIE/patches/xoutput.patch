@@ -1,0 +1,301 @@
+diff -ruN XOutputPlugin-ORIG/XOutputPlugin/DS3Device.cs XOutputPlugin/XOutputPlugin/DS3Device.cs
+--- XOutputPlugin-ORIG/XOutputPlugin/DS3Device.cs	2017-02-10 15:11:43.000000000 -0800
++++ XOutputPlugin/XOutputPlugin/DS3Device.cs	2017-02-10 15:24:50.000000000 -0800
+@@ -10,22 +10,22 @@
+     [GlobalEnum]
+     public enum XOutputButton
+     {
+-        A, B, X, Y,
+-        Up, Down, Left, Right,
+-        L3, R3, L1, R1,
+-        Guide, Start, Back
++        a, b, x, y,
++        up, down, left, right,
++        leftThumb, rightThumb, leftShoulder, rightShoulder,
++        Guide, start, back
+     }
+ 
+     [GlobalEnum]
+     public enum XOutputTrigger
+     {
+-        L2, R2
++        leftTrigger, rightTrigger
+     }
+ 
+     [GlobalEnum]
+     public enum XOutputAxis
+     {
+-        LX, LY, RX, RY
++        leftStickX, leftStickY, rightStickX, rightStickY
+     }
+ 
+     class DeviceState
+@@ -188,31 +188,31 @@
+             Input[4] = (Byte)(Index);
+             Input[9] = 0x14;
+ 
+-            Input[10] |= (Byte)(IntValue(XOutputButton.Up) << 0); // Up
+-            Input[10] |= (Byte)(IntValue(XOutputButton.Down) << 1); // Down
+-            Input[10] |= (Byte)(IntValue(XOutputButton.Left) << 2); // Left
+-            Input[10] |= (Byte)(IntValue(XOutputButton.Right) << 3); // Right
+-            Input[10] |= (Byte)(IntValue(XOutputButton.Start) << 4); // Start
+-            Input[10] |= (Byte)(IntValue(XOutputButton.Back) << 5); // Back
+-            Input[10] |= (Byte)(IntValue(XOutputButton.L3) << 6); // Left  Thumb
+-            Input[10] |= (Byte)(IntValue(XOutputButton.R3) << 7); // Right Thumb
++            Input[10] |= (Byte)(IntValue(XOutputButton.up) << 0); // Up
++            Input[10] |= (Byte)(IntValue(XOutputButton.down) << 1); // Down
++            Input[10] |= (Byte)(IntValue(XOutputButton.left) << 2); // Left
++            Input[10] |= (Byte)(IntValue(XOutputButton.right) << 3); // Right
++            Input[10] |= (Byte)(IntValue(XOutputButton.start) << 4); // Start
++            Input[10] |= (Byte)(IntValue(XOutputButton.back) << 5); // Back
++            Input[10] |= (Byte)(IntValue(XOutputButton.leftThumb) << 6); // Left  Thumb
++            Input[10] |= (Byte)(IntValue(XOutputButton.rightThumb) << 7); // Right Thumb
+ 
+-            Input[11] |= (Byte)(IntValue(XOutputButton.L1) << 0); // Left  Shoulder
+-            Input[11] |= (Byte)(IntValue(XOutputButton.R1) << 1); // Right Shoulder
++            Input[11] |= (Byte)(IntValue(XOutputButton.leftShoulder) << 0); // Left  Shoulder
++            Input[11] |= (Byte)(IntValue(XOutputButton.rightShoulder) << 1); // Right Shoulder
+             Input[11] |= (Byte)(IntValue(XOutputButton.Guide) << 2); // Guide
+ 
+-            Input[11] |= (Byte)(IntValue(XOutputButton.Y) << 7); // Y
+-            Input[11] |= (Byte)(IntValue(XOutputButton.B) << 5); // B
+-            Input[11] |= (Byte)(IntValue(XOutputButton.A) << 4); // A
+-            Input[11] |= (Byte)(IntValue(XOutputButton.X) << 6); // X
+-
+-            Input[12] = m_state.TriggerState[(int)XOutputTrigger.L2]; // Left Trigger
+-            Input[13] = m_state.TriggerState[(int)XOutputTrigger.R2]; // Right Trigger
+-
+-            Int32 LX = Scale(XOutputAxis.LX);
+-            Int32 LY = Scale(XOutputAxis.LY);
+-            Int32 RX = Scale(XOutputAxis.RX);
+-            Int32 RY = Scale(XOutputAxis.RY);
++            Input[11] |= (Byte)(IntValue(XOutputButton.y) << 7); // Y
++            Input[11] |= (Byte)(IntValue(XOutputButton.b) << 5); // B
++            Input[11] |= (Byte)(IntValue(XOutputButton.a) << 4); // A
++            Input[11] |= (Byte)(IntValue(XOutputButton.x) << 6); // X
++
++            Input[12] = m_state.TriggerState[(int)XOutputTrigger.leftTrigger]; // Left Trigger
++            Input[13] = m_state.TriggerState[(int)XOutputTrigger.rightTrigger]; // Right Trigger
++
++            Int32 LX = Scale(XOutputAxis.leftStickX);
++            Int32 LY = Scale(XOutputAxis.leftStickY);
++            Int32 RX = Scale(XOutputAxis.rightStickX);
++            Int32 RY = Scale(XOutputAxis.rightStickY);
+ 
+             Input[14] = (Byte)((LX >> 0) & 0xFF); // LX
+             Input[15] = (Byte)((LX >> 8) & 0xFF);
+diff -ruN XOutputPlugin-ORIG/XOutputPlugin/XOutputPlugin.cs XOutputPlugin/XOutputPlugin/XOutputPlugin.cs
+--- XOutputPlugin-ORIG/XOutputPlugin/XOutputPlugin.cs	2017-02-10 15:11:43.000000000 -0800
++++ XOutputPlugin/XOutputPlugin/XOutputPlugin.cs	2017-02-18 17:45:22.000000000 -0800
+@@ -142,104 +142,104 @@
+         }
+ 
+         #region Axis
+-        public int lx
++        public int leftStickX
+         {
+-            get { return holder.GetAxis(XOutputAxis.LX); }
+-            set { holder.SetAxis(XOutputAxis.LX, value); }
++            get { return holder.GetAxis(XOutputAxis.leftStickX); }
++            set { holder.SetAxis(XOutputAxis.leftStickX, value); }
+         }
+ 
+-        public int ly
++        public int leftStickY
+         {
+-            get { return holder.GetAxis(XOutputAxis.LY); }
+-            set { holder.SetAxis(XOutputAxis.LY, value); }
++            get { return holder.GetAxis(XOutputAxis.leftStickY); }
++            set { holder.SetAxis(XOutputAxis.leftStickY, value); }
+         }
+ 
+-        public int rx
++        public int rightStickX
+         {
+-            get { return holder.GetAxis(XOutputAxis.RX); }
+-            set { holder.SetAxis(XOutputAxis.RX, value); }
++            get { return holder.GetAxis(XOutputAxis.rightStickX); }
++            set { holder.SetAxis(XOutputAxis.rightStickX, value); }
+         }
+ 
+-        public int ry
++        public int rightStickY
+         {
+-            get { return holder.GetAxis(XOutputAxis.RY); }
+-            set { holder.SetAxis(XOutputAxis.RY, value); }
++            get { return holder.GetAxis(XOutputAxis.rightStickY); }
++            set { holder.SetAxis(XOutputAxis.rightStickY, value); }
+         }
+         #endregion
+ 
+         #region Triggers
+-        public int R2
++        public int rightTrigger
+         {
+-            get { return holder.GetTrigger(XOutputTrigger.R2); }
+-            set { holder.SetTrigger(XOutputTrigger.R2, value); }
++            get { return holder.GetTrigger(XOutputTrigger.rightTrigger); }
++            set { holder.SetTrigger(XOutputTrigger.rightTrigger, value); }
+         }
+ 
+-        public int L2
++        public int leftTrigger
+         {
+-            get { return holder.GetTrigger(XOutputTrigger.L2); }
+-            set { holder.SetTrigger(XOutputTrigger.L2, value); }
++            get { return holder.GetTrigger(XOutputTrigger.leftTrigger); }
++            set { holder.SetTrigger(XOutputTrigger.leftTrigger, value); }
+         }
+         #endregion
+ 
+         #region Buttons
+-        public bool Up
++        public bool up
+         {
+-            get { return holder.GetButton(XOutputButton.Up); }
+-            set { holder.SetButton(XOutputButton.Up, value); }
++            get { return holder.GetButton(XOutputButton.up); }
++            set { holder.SetButton(XOutputButton.up, value); }
+         }
+ 
+-        public bool Down
++        public bool down
+         {
+-            get { return holder.GetButton(XOutputButton.Down); }
+-            set { holder.SetButton(XOutputButton.Down, value); }
++            get { return holder.GetButton(XOutputButton.down); }
++            set { holder.SetButton(XOutputButton.down, value); }
+         }
+ 
+-        public bool Left
++        public bool left
+         {
+-            get { return holder.GetButton(XOutputButton.Left); }
+-            set { holder.SetButton(XOutputButton.Left, value); }
++            get { return holder.GetButton(XOutputButton.left); }
++            set { holder.SetButton(XOutputButton.left, value); }
+         }
+ 
+-        public bool Right
++        public bool right
+         {
+-            get { return holder.GetButton(XOutputButton.Right); }
+-            set { holder.SetButton(XOutputButton.Right, value); }
++            get { return holder.GetButton(XOutputButton.right); }
++            set { holder.SetButton(XOutputButton.right, value); }
+         }
+ 
+-        public bool Start
++        public bool start
+         {
+-            get { return holder.GetButton(XOutputButton.Start); }
+-            set { holder.SetButton(XOutputButton.Start, value); }
++            get { return holder.GetButton(XOutputButton.start); }
++            set { holder.SetButton(XOutputButton.start, value); }
+         }
+ 
+-        public bool Back
++        public bool back
+         {
+-            get { return holder.GetButton(XOutputButton.Back); }
+-            set { holder.SetButton(XOutputButton.Back, value); }
++            get { return holder.GetButton(XOutputButton.back); }
++            set { holder.SetButton(XOutputButton.back, value); }
+         }
+ 
+-        public bool L3
++        public bool leftThumb
+         {
+-            get { return holder.GetButton(XOutputButton.L3); }
+-            set { holder.SetButton(XOutputButton.L3, value); }
++            get { return holder.GetButton(XOutputButton.leftThumb); }
++            set { holder.SetButton(XOutputButton.leftThumb, value); }
+         }
+ 
+-        public bool R3
++        public bool rightThumb
+         {
+-            get { return holder.GetButton(XOutputButton.R3); }
+-            set { holder.SetButton(XOutputButton.R3, value); }
++            get { return holder.GetButton(XOutputButton.rightThumb); }
++            set { holder.SetButton(XOutputButton.rightThumb, value); }
+         }
+ 
+-        public bool L1
++        public bool leftShoulder
+         {
+-            get { return holder.GetButton(XOutputButton.L1); }
+-            set { holder.SetButton(XOutputButton.L1, value); }
++            get { return holder.GetButton(XOutputButton.leftShoulder); }
++            set { holder.SetButton(XOutputButton.leftShoulder, value); }
+         }
+ 
+-        public bool R1
++        public bool rightShoulder
+         {
+-            get { return holder.GetButton(XOutputButton.R1); }
+-            set { holder.SetButton(XOutputButton.R1, value); }
++            get { return holder.GetButton(XOutputButton.rightShoulder); }
++            set { holder.SetButton(XOutputButton.rightShoulder, value); }
+         }
+ 
+         public bool Guide
+@@ -248,28 +248,28 @@
+             set { holder.SetButton(XOutputButton.Guide, value); }
+         }
+ 
+-        public bool Y
++        public bool y
+         {
+-            get { return holder.GetButton(XOutputButton.Y); }
+-            set { holder.SetButton(XOutputButton.Y, value); }
++            get { return holder.GetButton(XOutputButton.y); }
++            set { holder.SetButton(XOutputButton.y, value); }
+         }
+ 
+-        public bool B
++        public bool b
+         {
+-            get { return holder.GetButton(XOutputButton.B); }
+-            set { holder.SetButton(XOutputButton.B, value); }
++            get { return holder.GetButton(XOutputButton.b); }
++            set { holder.SetButton(XOutputButton.b, value); }
+         }
+ 
+-        public bool A
++        public bool a
+         {
+-            get { return holder.GetButton(XOutputButton.A); }
+-            set { holder.SetButton(XOutputButton.A, value); }
++            get { return holder.GetButton(XOutputButton.a); }
++            set { holder.SetButton(XOutputButton.a, value); }
+         }
+ 
+-        public bool X
++        public bool x
+         {
+-            get { return holder.GetButton(XOutputButton.X); }
+-            set { holder.SetButton(XOutputButton.X, value); }
++            get { return holder.GetButton(XOutputButton.x); }
++            set { holder.SetButton(XOutputButton.x, value); }
+         }
+         #endregion
+ 
+@@ -287,6 +287,17 @@
+             holder.SetButton(button, pressed);
+         }
+ 
++        public void SetTrigger(XOutputTrigger trigger, int value)
++        {
++            holder.SetTrigger(trigger, value);
++        }
++
++        public void SetAxis(XOutputAxis axis, int value)
++        {
++            holder.SetAxis(axis, value);
++        }
++
++
+     }
+     
+ }
