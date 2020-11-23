@@ -7,7 +7,7 @@
         class PIEGame(PIEGameClass):
    which must override the following:
         ProcessName     - the window process name to detect this game.
-        Run()           - Called every 16ms.
+        Run()           - Called every threadExecutionInterval
     and may also override:
         RunInBackground - To Run() even when window is not foreground.
         Init()          - Called once to initialize the game.

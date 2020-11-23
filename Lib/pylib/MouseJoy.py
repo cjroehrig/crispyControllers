@@ -56,6 +56,7 @@ class MJUpdater(object):
         """
         if self.decay:
             # --> val * decayFactor^(decay/deltaT) = 0.01*val
+            # XXX: rewrite this to not use pow(); only need a rough approx.
             return pow(0.1, deltaT/self.decay)
         else:
             return 1.0
@@ -174,28 +175,6 @@ class MJTrackerUpdater(MJUpdater):
         self.maxAccel = 5       # Maximum acceleration factor
         self.decay = None       # seconds to decay to 1% of its value
         self.offset = 0         # This is set by CaptureOffset()
-
-        # smooth the RAW values according to maxAccel
-        # XXX: figure out how to extract this into some kind of smooth object
-        #self.currDelta = 0          # current axis delta (for smoothAccel)
-        #self.prevDelta = 0          # previous axis delta (for smoothAccel)
-        #self.smoothAccel = False    # use Accel smoothing instead of simple
-        #self.smoothMaxAccel = 1     # The maximum acceleration for smoothing
-                                    # (fraction of max_deflection / sec^2)
-        #self._smoothMaxAccel = 1    # FPS scaled internal version
-        # smoothMaxAccel is in max_deflection/sec/sec
-        #self._smoothMaxAccel = self.smoothMaxAccel*self.deltaT*self.deltaT
-        #self._smoothMaxAccel *= abs(self.maxVal)
-        #if self.smoothAccel:
-        #    # limit the size of acceleration (2nd derivative)
-        #    delta = val - self.prevVal
-        #    maxDelta = self.prevDelta + self._smoothMaxAccel
-        #    if delta > maxDelta:
-        #        self.G.dbg(self.dbg+'S',
-        #            "%s Smoothing: delta=%7.3f --> maxDelta=%7.3f",
-        #            name, delta, maxDelta )
-        #        val = self.prevVal + maxDelta
-        #    self.currDelta = maxDelta
 
     #========================================
     def Reset(self):

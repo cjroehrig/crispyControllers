@@ -1,3 +1,14 @@
+# crispyControllers
+A scripting framework and library for AutoHotKey and FreePIE to make it
+easy to add and manage keyboard, mouse and controller customizations to games
+and other programs.
+
+## Features:
+	- Simple to set up new games.
+	- Automatic game-switching.
+	- Powerful mouse and key to joystick mapping (MouseJoy).
+	- EDTracker support
+
 #==============================================================================
 # HOWTO INSTALL CJRControllers environment
 # CJR Jun 2020
