@@ -190,7 +190,6 @@ if starting:
     import Games.EuroTrucks2
     import Games.AmerTrucks
     import Games.Kerbal
-    import Games.JoyMonitor
     import Games.JoystickTest
 
     switcher = GameSwitcher(G)

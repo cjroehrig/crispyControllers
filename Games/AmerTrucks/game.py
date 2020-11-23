@@ -34,7 +34,7 @@ class PIEGame(CJRPIEGame):
         # LOOK
         self.look = self.CJRLook()
         self.CJRLookAddTracker( self.look,
-            smoothing=160,          # smoothing interval in ms
+            smoothing=80,          # smoothing interval in ms
             scale = 2.8,            # scale multiplier at the origin (offset)
             accel = 0.25,           # percent of squared offset to add
             maxAccel = 1.5,         # Maximum acceleration factor
