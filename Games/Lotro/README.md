@@ -15,28 +15,34 @@ FOLLOW is a state you can turn on/off for your SELECTED fellow or for all fellow
 ### Required by crispyControllers
 NB: In AutoHotKey, there can be no definitions after the first mapping, so the crispyControllers framework keeps definitions and mappings in separate files.
 
-mappings.ahk			- the AutoHotKey key bindings and actions.
-						  These are the keybindings that are intercepted and
-						  used to control the other window(s).
-defs.ahk				- A wrapper to read the MODE file which tells which
-						  defs-$MODE file to read.
+File					| Description
+----					| -----------
+mappings.ahk			| the AutoHotKey key bindings and actions.
+						| These are the keybindings that are intercepted and
+						| used to control the other window(s).
+defs.ahk				| A wrapper to read the MODE file which tells which
+						| defs-$MODE file to read.
 
 ### Additional definitions
-bindingdef.ahk			- Key binding definitions in a dictionary (KK).
-						  These are the LotRO in-game keybindings used to
-						  control a window.
-LotroWin.ahk			- the LotroWin class which contains the logic
-						  for operating a single LotRO window/character.
-defs-Solo.ahk			- A duoboxed party of 2 (e.g. hunter + minstrel)
-defs-Party.ahk			- Same duoboxed duo but within a larger fellowship
-						  of players (with different assist targets)
-defs-Trio.ahk			- A trioboxed party of 3 (hunter+minstrel+guardian)
-						  Make sure you understand duoboxing before going here.
-MODE					- a single word: Solo/Party/Trio
+File					| Description
+----					| -----------
+bindingdef.ahk			| Key binding definitions in a dictionary (KK).
+						| These are the LotRO in-game keybindings used to
+						| control a window.
+LotroWin.ahk			| the LotroWin class which contains the logic
+						| for operating a single LotRO window/character.
+defs-Solo.ahk			| A duoboxed party of 2 (e.g. hunter + minstrel)
+defs-Party.ahk			| Same duoboxed duo but within a larger fellowship
+						| of players (with different assist targets)
+defs-Trio.ahk			| A trioboxed party of 3 (hunter+minstrel+guardian)
+						| Make sure you understand duoboxing before going here.
+MODE					| a single word: Solo/Party/Trio
 
 ### Library files
-Lib/ahk/io.ahk			- I/O functions (that actually do the Windows calls)
-Lib/ahk/util.ahk		- utility functions
+File					| Description
+----					| -----------
+Lib/ahk/io.ahk			| I/O functions (that actually do the Windows calls)
+Lib/ahk/util.ahk		| utility functions
 
 
 ## HOW TO GET STARTED:
