@@ -17,25 +17,17 @@ NB: In AutoHotKey, there can be no definitions after the first mapping, so the c
 
 File					| Description
 ----					| -----------
-mappings.ahk			| the AutoHotKey key bindings and actions.
-						| These are the keybindings that are intercepted and
-						| used to control the other window(s).
-defs.ahk				| A wrapper to read the MODE file which tells which
-						| defs-$MODE file to read.
+mappings.ahk			| the AutoHotKey key bindings and actions.  These are the keybindings that are intercepted and used to control the other window(s).
+defs.ahk				| A wrapper to read the MODE file which tells which defs-*.ahk file to read.
 
 ### Additional definitions
 File					| Description
 ----					| -----------
-bindingdef.ahk			| Key binding definitions in a dictionary (KK).
-						| These are the LotRO in-game keybindings used to
-						| control a window.
-LotroWin.ahk			| the LotroWin class which contains the logic
-						| for operating a single LotRO window/character.
+bindingdef.ahk			| Key binding definitions in a dictionary (KK). These are the LotRO in-game keybindings used to control a window.
+LotroWin.ahk			| the LotroWin class which contains the logic for operating a single LotRO window/character.
 defs-Solo.ahk			| A duoboxed party of 2 (e.g. hunter + minstrel)
-defs-Party.ahk			| Same duoboxed duo but within a larger fellowship
-						| of players (with different assist targets)
-defs-Trio.ahk			| A trioboxed party of 3 (hunter+minstrel+guardian)
-						| Make sure you understand duoboxing before going here.
+defs-Party.ahk			| Same duoboxed duo but within a larger fellowship of players (with different assist targets)
+defs-Trio.ahk			| A trioboxed party of 3 (hunter+minstrel+guardian) Make sure you understand duoboxing before going here.
 MODE					| a single word: Solo/Party/Trio
 
 ### Library files
