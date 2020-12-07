@@ -43,12 +43,12 @@ Lib/ahk/util.ahk		| Utility functions.
 
 2.  Edit `mappings.ahk` and `bindingdef.ahk` to use your preferred key bindings.   NB: The examples here are set up to use ESDF instead of WASD.
 
-	- The `mappings.ahk` uses standard AutoHotKey mappings:
-	https://www.autohotkey.com/docs/Hotkeys.htm
+The `mappings.ahk` uses standard AutoHotKey mappings:
+	> https://www.autohotkey.com/docs/Hotkeys.htm
 
-	- The `bindingdef.ahk` uses the format for the AutoHotKey `Send` command:
-	https://www.autohotkey.com/docs/commands/Send.htm
-	https://www.autohotkey.com/docs/KeyList.htm
+The `bindingdef.ahk` uses the format for the AutoHotKey `Send` command:
+	> https://www.autohotkey.com/docs/commands/Send.htm
+	> https://www.autohotkey.com/docs/KeyList.htm
 
 3.	For each toon, set up a dedicated ActionBar with 6-slots with its own key bindings. These are the skills that will be controlled by your other windows.  Note that `F1-F6` are intercepted by mappings.ahk and sent to other windows;  this lets you assign `F1-F6` LotRO key bindings to control this ActionBar (they can only be triggered when the window is in the background).
 
