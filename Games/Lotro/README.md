@@ -43,10 +43,10 @@ Lib/ahk/util.ahk		| Utility functions.
 
 2.  Edit `mappings.ahk` and `bindingdef.ahk` to use your preferred key bindings.   NB: The examples here are set up to use ESDF instead of WASD.
 
-The `mappings.ahk` uses standard AutoHotKey mappings:
+	The `mappings.ahk` uses standard AutoHotKey mappings:
 	> https://www.autohotkey.com/docs/Hotkeys.htm
 
-The `bindingdef.ahk` uses the format for the AutoHotKey `Send` command:
+	The `bindingdef.ahk` uses the format for the AutoHotKey `Send` command:
 	> https://www.autohotkey.com/docs/commands/Send.htm
 	> https://www.autohotkey.com/docs/KeyList.htm
 
