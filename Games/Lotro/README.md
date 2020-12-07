@@ -69,7 +69,7 @@ Run as Windowed full-screen (instead of normal Full-screen).
 
 Save your UI (`/ui layout save <file>`) as:
 
-<file> | Description
+`<file>` | Description
 ------ | -----------
 f | Full screen layout.
 w | Windowed layout.
