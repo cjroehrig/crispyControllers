@@ -39,16 +39,16 @@ Lib/ahk/util.ahk		| Utility functions.
 
 ## HOW TO GET STARTED:
 1.	Install crispyControllers and AutoHotKey:
-	https://github.com/cjroehrig/crispyControllers
+	- https://github.com/cjroehrig/crispyControllers
 
 2.  Edit `mappings.ahk` and `bindingdef.ahk` to use your preferred key bindings.   NB: The examples here are set up to use ESDF instead of WASD.
 
 The `mappings.ahk` uses standard AutoHotKey mappings:
-	https://www.autohotkey.com/docs/Hotkeys.htm
+	- https://www.autohotkey.com/docs/Hotkeys.htm
 
 The `bindingdef.ahk` uses the format for the AutoHotKey `Send` command:
-	https://www.autohotkey.com/docs/commands/Send.htm
-	https://www.autohotkey.com/docs/KeyList.htm
+	- https://www.autohotkey.com/docs/commands/Send.htm
+	- https://www.autohotkey.com/docs/KeyList.htm
 
 3.	For each toon, set up a dedicated ActionBar with 6-slots with its own key bindings. These are the skills that will be controlled by your other windows.  Note that `F1-F6` are intercepted by mappings.ahk and sent to other windows;  this lets you assign `F1-F6` LotRO key bindings to control this ActionBar (they can only be triggered when the window is in the background).
 
@@ -68,9 +68,12 @@ The `bindingdef.ahk` uses the format for the AutoHotKey `Send` command:
 Run as Windowed full-screen (instead of normal Full-screen).
 
 Save your UI (`/ui layout save <file>`) as:
+
+<file> | Description
 f | Full screen layout.
 w | Windowed layout.
-wbg | Background window layout.  You 
+wbg | Background window layout.
+
 These files are automatically sent to be load using the layout_full() and
 layout_win() functions.  I found it useful to have the following Combat options set in the `wbg` layout (but not in the foreground (`w` and `f`) layouts):
 - Allow skill buttons to target nearest enemy
@@ -78,9 +81,6 @@ layout_win() functions.  I found it useful to have the following Combat options 
 - Enable movement assistance in combat
 
 For immersion, turn down all volume sliders for all your non-MAIN toons except for the User Interface volume so you can hear any chat attempts in background windows (and Player Music so you can get some enhanced stereo effects).
-
-
-Save your window
 
 To be effective in full-screen, your `F1-F6` skills should be ones which don't require knowledge of any "procs" which you can't see.   Cooldowns are ok -- you eventually get a sense of the timing.
 
