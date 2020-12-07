@@ -40,22 +40,30 @@ Lib/ahk/util.ahk		| Utility functions.
 ## HOW TO GET STARTED:
 1.	Install crispyControllers and AutoHotKey:
 
-https://github.com/cjroehrig/crispyControllers
+	https://github.com/cjroehrig/crispyControllers
+
 2.  Edit `mappings.ahk` and `bindingdef.ahk` to use your preferred key bindings.   NB: The examples here are set up to use ESDF instead of WASD.
+
 The `mappings.ahk` uses standard AutoHotKey mappings:
 
-https://www.autohotkey.com/docs/Hotkeys.htm
+	https://www.autohotkey.com/docs/Hotkeys.htm
+
 The `bindingdef.ahk` uses the format for the AutoHotKey `Send` command:
 
-https://www.autohotkey.com/docs/commands/Send.htm
+	https://www.autohotkey.com/docs/commands/Send.htm
 
-https://www.autohotkey.com/docs/KeyList.htm
+	https://www.autohotkey.com/docs/KeyList.htm
 
 3.	For each toon, set up a dedicated ActionBar with 6-slots with its own key bindings. These are the skills that will be controlled by your other windows.  Note that `F1-F6` are intercepted by mappings.ahk and sent to other windows;  this lets you assign `F1-F6` LotRO key bindings to control this ActionBar (they can only be triggered when the window is in the background).
+
 4.  Edit your defs file (start with defs-Solo.ahk) to define each window and its skills key bindings.  There should be a LotroWin for each multi-boxed character.  The skills array defines what happens when your controlling character sends the intercepted actions (`F1-F6`) to this window and should be LotRO key bindings as defined for that toon.   In particular, you need to define the order of fellowship members and adjust which fellowship member is targetted or assisted by each skill.   You can make up your own `def-*.ahk` names and refer to them in the `MODE` file.
+
 5.	Add Lotro to the crispyControllers `main.ahk`, update the `MODE` file according to which mode you will be playing and run AutoHotKey `main.ahk`.
+
 6.	Log into each LotRO account/toon and use your Rotate Window Title key binding to set its window title to the correct title for that toon (as defined in your defs file).
+
 7.	Party up so that each window has the fellowship members in the correct order.  This may be tricky for larger parties and you may need to redefine your defs to make it possible.
+
 8.	SELECT your background toon, turn FOLLOW on, and try out the various FOLLOW commands.
 
 
