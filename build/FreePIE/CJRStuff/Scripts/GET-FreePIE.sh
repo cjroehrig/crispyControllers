@@ -19,8 +19,8 @@ else
 fi
 
 # Apply patches
-NO_PATCHES=()
-PATCHES=( console-joy noindexer fileerrs )
+NO_PATCHES=( noindexer fileerrs )
+PATCHES=( console-joy )
 for p in "${PATCHES[@]}"; do 
 	p="${p}.patch"
 	if [ -e "patches/$p" ]; then

@@ -11,17 +11,17 @@
 !q::		LotroWin.layout_full()			; Alt Q		layout fullscreen
 
 ;==============================================================================
-; Following 
+; FOLLOWING 
 
-; Follow ON
+; FOLLOW ON
 +f::	LotroWin.Active.follow_on_all(true)				; all fellows
 !+f::	LotroWin.Active.follow_on(true)					; just selected
-; Follow OFF
+; FOLLOW OFF
 +s::	LotroWin.Active.follow_on_all(false)			; all fellows
 !+s::	LotroWin.Active.follow_on(false)				; just selected
 
 
-; Following keys -- sent to active window and all its followers
+; FOLLOWing keys -- sent to active window and all its followers
 ; (after the default delay)
 +d::	LotroWin.Active.send_following("+d",,2)			; mount/unmount
 Space::	LotroWin.Active.send_following("{Space}")		; jump
@@ -42,11 +42,11 @@ c::		LotroWin.Active.send_following("c", 200)		; warsteed stop
 ;==============================================================================
 ; Fellow keys -- sent to the Active window's selected Fellow
 
-; Fellow Select: choose which fellow (1-5)
+; Fellow SELECT: choose which fellow (1-5)
 NumpadDot::		LotroWin.Active.fellow_select(1)		; select first fellow
 Numpad0::		LotroWin.Active.fellow_select(2)		; select second fellow
 
-; Fellow Skills: sent to the selected fellow
+; Fellow Skills: sent to the SELECTed fellow
 F1::		LotroWin.Active.fellow_skill(1)			; skill 1
 F2::		LotroWin.Active.fellow_skill(2)			; skill 2
 F3::		LotroWin.Active.fellow_skill(3)			; skill 3
@@ -54,10 +54,10 @@ F4::		LotroWin.Active.fellow_skill(4)			; skill 4
 F5::		LotroWin.Active.fellow_skill(5)			; skill 5
 F6::		LotroWin.Active.fellow_skill(6)			; skill 6
 
-; Selected Fellow: Target and use nearest object
+; SELECTed Fellow: Target and use nearest object
 ^`::		LotroWin.Active.fellow_send(KK.targetanduse)	; Ctrl-`
 
-; Selected fellow movement (when Ctrl is held)
+; SELECTed fellow movement (when Ctrl is held)
 ^e::	LotroWin.Active.fellow_move_start()		; Ctrl E
 ^e Up::		LotroWin.Active.fellow_move_stop()		; Ctrl E up
 
