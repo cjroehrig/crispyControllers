@@ -19,6 +19,7 @@
 #Include Games/AmerTrucks/mappings.ahk
 #Include Games/Witcher2/mappings.ahk
 #Include Games/Kerbal/mappings.ahk
+;#Include Games/RDR2/mappings.ahk
 ;#Include Games/EliteDangerous/mappings.ahk
 ; FINISHED:
 ;#Include Games/AC2/mappings.ahk

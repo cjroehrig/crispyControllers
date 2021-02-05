@@ -65,7 +65,7 @@ Lib/ahk/util.ahk		| Utility functions.
 
 ## NOTES AND TIPS
 
-Run as Windowed full-screen (instead of normal Full-screen).
+Run as Full-Screen (Windowed) instead of Full-screen.
 
 Save your UI (`/ui layout save <file>`) as:
 

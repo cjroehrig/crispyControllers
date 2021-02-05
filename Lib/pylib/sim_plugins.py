@@ -30,6 +30,8 @@ ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 POSSIBILITY OF SUCH DAMAGE.
 """
 
+import sys
+
 #==============================================================================
 # keyboard
 class SimKeyboard:
@@ -167,7 +169,12 @@ midi = SimMIDI()
 
 #==============================================================================
 # Key class 
-class Key:
+if sys.version_info[0] < 3:     # really only checking for 2.7
+    from crispy.enum import Enum
+else:
+    from enum import Enum
+
+class Key(Enum):
     D0 = 0
     D1 = 1
     D2 = 2
@@ -318,7 +325,6 @@ class Key:
 # window
 #  NB: this needs Windows Python with PIP modules: pywin32 and psutil
 try:
-    import sys
     if sys.version_info[0] > 2:
         import builtins
         if 'sim_DUMMYWINDOW' in dir(builtins) and builtins.sim_DUMMYWINDOW: raise ModuleNotFoundError()

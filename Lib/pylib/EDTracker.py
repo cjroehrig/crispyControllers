@@ -31,17 +31,16 @@ POSSIBILITY OF SUCH DAMAGE.
 """
 
 #==============================================================================
-class EDTracker:
+from crispy.Analog import AnalogXYZ
+
+class EDTracker(AnalogXYZ):
     def __init__(self, G, comPort=None, axisMax=1000):
         """Return an EDTracker device.
         If comPort is specified, use it; otherwise auto-detect it.
         XXX: only works if there is only one existing COM port.
         """
-        self.G = G
+        super(EDTracker, self).__init__(G)
         self.axisMax = axisMax
-        self.x_smoother = None
-        self.y_smoother = None
-        self.z_smoother = None
         try:
             self.edjoy = self.G.joystick["EDTracker EDTracker2"]
             if not self.edjoy: raise Exception("not found")
@@ -76,30 +75,14 @@ class EDTracker:
 
     #========================================
     def Reset(self):
-        if self.x_smoother: self.x_smoother.Reset()
-        if self.y_smoother: self.y_smoother.Reset()
-        if self.z_smoother: self.z_smoother.Reset()
+        super(EDTracker, self).Reset()
 
     #========================================
-    # Get current values
-    def getX(self):
-        if not self.edjoy: return 0
-        val = self.edjoy.x
-        if self.x_smoother:
-            val = self.x_smoother.Update(val)
-        return val
-    def getY(self):
-        if not self.edjoy: return 0
-        val = self.edjoy.y
-        if self.y_smoother:
-            val = self.y_smoother.Update(val)
-        return val
-    def getZ(self):
-        if not self.edjoy: return 0
-        val = self.edjoy.z
-        if self.z_smoother:
-            val = self.z_smoother.Update(val)
-        return val
+    # Get current Hardware values
+    def _getHWX(self): return self.edjoy.x if self.edjoy else 0
+    def _getHWY(self): return self.edjoy.y if self.edjoy else 0
+    def _getHWZ(self): return self.edjoy.z if self.edjoy else 0
+
     #========================================
     def Center(self):
         """Center (zero) EDTracker head position."""
@@ -108,6 +91,8 @@ class EDTracker:
                 "no comPort defined")
             return
         try:
+            # XXX: this doesn't raise an exception if EDTracker
+            # becomes disconnected...
             from System.IO.Ports import SerialPort
             serial = SerialPort(self.comPort, 57600)
             serial.Open()

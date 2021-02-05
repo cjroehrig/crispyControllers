@@ -22,7 +22,7 @@
         steer                           MouseJoy
             .left,right,up,down         MJAxis
             .throttle,brake             == up,down (MJAxis)
-                .key                    MJKeyUpdater
+                .key                    MJButtonUpdater
                 .mouse                  MJMouseUpdater
             .lroll,rroll                MJAxis (for roll)
                 .key                    MJMouseUpdater
@@ -261,7 +261,7 @@ class CJRPIEGame (PIEGameClass):
         """Add left/right keyboard steering to steer.X."""
         if not steer.left:
             self.CJRSteerLR(steer)
-        u = MJKeyUpdater()
+        u = MJButtonUpdater()
         u.incr = incr
         u.accel = accel
         u.maxAccel = maxAccel
@@ -269,16 +269,16 @@ class CJRPIEGame (PIEGameClass):
         u.doubleTapThreshold = 0    # double-tap disabled for LR steering
         #u.doubleTapMaxAccel = True # Use max accel 
         u.multiTapThreshold = 0.120 # in seconds
-        u.multiKeyAccel = True      # accel uses hold-time of any axis keys.
+        u.multiButtonAccel = True      # accel uses hold-time of any axis keys.
 
-        steer.left.key = u
-        steer.right.key = u.Copy()
-        steer.left.AddUpdater(steer.left.key)
-        steer.right.AddUpdater(steer.right.key)
+        steer.left.keyu = u
+        steer.right.keyu = u.Copy()
+        steer.left.AddUpdater(steer.left.keyu)
+        steer.right.AddUpdater(steer.right.keyu)
 
         # my key bindings: S/F
-        steer.left.key.key = self.G.Key.S
-        steer.right.key.key = self.G.Key.F
+        steer.left.keyu.setButton(self.G.Key.S)
+        steer.right.keyu.setButton(self.G.Key.F)
         self.G.printf("CJR: %s: added LR keys", steer.name )
 
     #=======================================
@@ -292,21 +292,21 @@ class CJRPIEGame (PIEGameClass):
 
         if not steer.up:
             self.CJRSteerUD(steer)
-        u = MJKeyUpdater()
+        u = MJButtonUpdater()
         u.incr = incr
         u.accel = accel
         u.maxAccel = maxAccel
         u.decay = decay
         u.doubleTapThreshold = 0.120  # in seconds
 
-        steer.up.key = u
-        steer.down.key = u.Copy()
-        steer.up.AddUpdater(steer.up.key)
-        steer.down.AddUpdater(steer.down.key)
+        steer.up.keyu = u
+        steer.down.keyu = u.Copy()
+        steer.up.AddUpdater(steer.up.keyu)
+        steer.down.AddUpdater(steer.down.keyu)
 
         # my key bindings: E/D
-        steer.up.key.key = self.G.Key.E
-        steer.down.key.key = self.G.Key.D
+        steer.up.keyu.setButton(self.G.Key.E)
+        steer.down.keyu.setButton(self.G.Key.D)
         self.G.printf("CJR: %s: added UD keys", steer.name )
 
     #=======================================
@@ -341,7 +341,7 @@ class CJRPIEGame (PIEGameClass):
 
         if not steer.lroll:
             self.CJRSteerRoll(steer)
-        u = MJKeyUpdater()
+        u = MJButtonUpdater()
         u.incr = incr
         u.accel = accel
         u.maxAccel = maxAccel
@@ -349,16 +349,16 @@ class CJRPIEGame (PIEGameClass):
         u.doubleTapThreshold = 0     # disable double-tap
         #u.doubleTapMaxAccel = True   # Use max accel
         u.multiTapThreshold = 0.120  # in seconds
-        u.multiKeyAccel = True       # accel uses hold-time of any axis keys.
+        u.multiButtonAccel = True       # accel uses hold-time of any axis keys.
 
-        steer.lroll.key = u
-        steer.rroll.key = u.Copy()
-        steer.lroll.AddUpdater(steer.lroll.key)
-        steer.rroll.AddUpdater(steer.rroll.key)
+        steer.lroll.keyu = u
+        steer.rroll.keyu = u.Copy()
+        steer.lroll.AddUpdater(steer.lroll.keyu)
+        steer.rroll.AddUpdater(steer.rroll.keyu)
 
         # Key Bindings
-        steer.lroll.key.key = self.G.Key.S
-        steer.rroll.key.key = self.G.Key.F
+        steer.lroll.keyu.setButton(self.G.Key.S)
+        steer.rroll.keyu.setButton(self.G.Key.F)
         self.G.printf("CJR: %s: added LR roll keys", steer.name )
 
 

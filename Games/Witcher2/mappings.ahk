@@ -28,4 +28,10 @@ WheelUp::		Send {Up down}{Up up}
 ; Shift-Z: toggle UI.
 +Z::			O
 
+; autorun
+e::				AutoKey.Down("e")
+e Up:: 			AutoKey.Up("e")
+~d::			AutoKey.Off("e")
+
+
 #IfWinActive

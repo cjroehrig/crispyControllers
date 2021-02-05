@@ -30,6 +30,17 @@ POSSIBILITY OF SUCH DAMAGE.
 """
 
 #===============================================================================
+from crispy.Button import Button
+
+#===========================================================
+# Default mouse using the FreePIE mouse
+from crispy.Analog import AnalogXY
+class MJMouse(AnalogXY):
+    def _getHWDeltaX(self):  return self.G.mouse.deltaX
+    def _getHWDeltaY(self):  return -self.G.mouse.deltaY    # inverted
+
+
+#===============================================================================
 
 class MJUpdater(object):
     """A strategy for updating an axis."""
@@ -101,31 +112,6 @@ class MJUpdater(object):
     def Update(self): pass
 
 #===========================================================
-class MJMouse:
-    """A class to return mouse delta values using the default FreePIE mouse.
-    """
-
-    def __init__(self, G):
-        self.G = G
-        self.x_smoother = None
-        self.y_smoother = None
-
-    def Reset(self):
-        if self.x_smoother: self.x_smoother.Reset()
-        if self.y_smoother: self.y_smoother.Reset()
-
-    def getDeltaX(self):
-        val = self.G.mouse.deltaX
-        if self.x_smoother:
-            val = self.x_smoother.Update(val)
-        return val
-    def getDeltaY(self):
-        val = self.G.mouse.deltaY
-        if self.y_smoother:
-            val = self.y_smoother.Update(val)
-        return val
-
-#===========================================================
 class MJMouseUpdater(MJUpdater):
     """MJUpdater for mouse movements.
     """
@@ -170,7 +156,7 @@ class MJMouseUpdater(MJUpdater):
             if ax.isHoriz:
                 delta = self.mouse.getDeltaX()
             else:
-                delta = -self.mouse.getDeltaY()        # inverted
+                delta = self.mouse.getDeltaY()
 
         incr = delta * self.scale
         adelta = abs(delta)
@@ -232,94 +218,98 @@ class MJTrackerUpdater(MJUpdater):
         ax.dbgIncr('T+', incr, accel, adelta)
 
 #===========================================================
-class MJKeyUpdater(MJUpdater):
+class MJButtonUpdater(MJUpdater):
     """MJUpdater for analog-style response to key/button presses.
        Decays back to preset value.
     """
-    def __init__(self, key=None):
-        """Create a MJKeyUpdater using key"""
-        super(MJKeyUpdater, self).__init__()
-        self.key = key              # a FreePIE enum Key type
+    def __init__(self, button=None):
+        """Create a MJButtonUpdater using button."""
+        super(MJButtonUpdater, self).__init__()
+        self.setButton(button)
 
         self.incr = 50              # percent axisMax per second
-        self.accel = 2              # percent of key hold time (in ms) to add
+        self.accel = 2              # percent of button hold time (in ms) to add
         self.maxAccel = 5           # Maximum acceleration factor
-        self.multiKeyAccel = False  # accel uses hold-time of any axis keys.
+        self.multiButtonAccel = False # accel uses hold-time of any axis buttons
         self.multiTapThreshold = 0.200 # in seconds; 0 to disable
         self.decay = 1.0            # seconds to decay to 1% of its value
         # Double-tap to go directly to axis maxVal:
         self.doubleTapThreshold = 0.100    # in seconds; 0 to disable
         self.doubleTapMaxAccel = False  # True: use max accel instead of max val
-        # key decay is used for the first keyUsageTime seconds after 
-        # key press/release; thence mouse/other decay is used.
-        self.keyUsageTime = 1.000    # in seconds; 0 to disable key decay
+        # button decay is used for the first buttonUsageTime seconds after 
+        # button press/release; thence mouse/other decay is used.
+        self.buttonUsageTime = 1.000    # in seconds; 0 to disable button decay
 
         # Internal
-        self.keyIsDown = False      # True if controlling key is down.
-        self.keyDownT = 0           # time of last key-down event
-        self.keyUpT = 0             # time of last key-up event
+        self.buttonIsDown = False      # True if controlling button is down.
+        self.buttonDownT = 0           # time of last button-down event
+        self.buttonUpT = 0             # time of last button-up event
+
+    #========================================
+    def setButton(self, button):
+        self.button = Button(self.G, button)
 
     #========================================
     def Reset(self):
-        self.keyIsDown = False
-        self.keyDownT = 0
-        self.keyUpT = 0
+        self.buttonIsDown = False
+        self.buttonDownT = 0
+        self.buttonUpT = 0
 
     #========================================
     def Update(self):
-        """Update this axis according to the key state.
+        """Update this axis according to the button state.
            Applies increment with time-based acceleration.
            If double-tapped, go to max.
         """
-        if not self.key: return
-        isDown = self.G.keyboard.getKeyDown(self.key)
+        if not self.button: return
+        isDown = self.button.isDown()
         ax = self.axis
         currT = ax.currT
         if isDown:
-            # Key is down
+            # Button is down
             val = ax.GetArrestedVal()
 
             # Compute increment based on actual deltaT
             incr = self._incr * ax.deltaT
 
-            if not self.keyIsDown:
-                # Key was just depressed
-                self.dbgKey("PRESSED")
-                if (currT - self.keyUpT) < self.doubleTapThreshold:
+            if not self.buttonIsDown:
+                # Button was just depressed
+                self.dbgButton("PRESSED")
+                if (currT - self.buttonUpT) < self.doubleTapThreshold:
                     # It's a double-tap
                     if self.doubleTapMaxAccel:
                         # Go to max accel (as if held for 2 seconds...)
-                        self.dbgKey("MAXACCEL")
-                        self.keyDownT = currT - 2.0
+                        self.dbgButton("MAXACCEL")
+                        self.buttonDownT = currT - 2.0
                     else:
                         # Go to max
-                        self.dbgKey("MAXVAL")
+                        self.dbgButton("MAXVAL")
                         val = ax.maxVal
                         incr = 0    # skip the incr
                         holdDuration = 0.0
-                        self.keyDownT = currT
-                elif self.multiKeyAccel and (
-                       ax.keyDownCount > 0
-                    or (currT - ax.keyUpT) < self.multiTapThreshold):
-                    # Another key is (or was recently) down;
+                        self.buttonDownT = currT
+                elif self.multiButtonAccel and (
+                       ax.buttonDownCount > 0
+                    or (currT - ax.buttonUpT) < self.multiTapThreshold):
+                    # Another button is (or was recently) down;
                     # accel doesn't reset.
-                    if ax.keyDownCount > 0:
-                        # continue from the existing axis keyTime
-                        self.dbgKey("MULTIKEY[HELD]")
+                    if ax.buttonDownCount > 0:
+                        # continue from the existing axis buttonTime
+                        self.dbgButton("MULTIBUTTON[HELD]")
                     else:
-                        # new key down, but don't reset the 
-                        # previous axis keyDownT
-                        self.dbgKey("MULTIKEY[TAP]")
-                    # continue from the previous axis.keyDownT
-                    self.keyDownT = ax.keyDownT
+                        # new button down, but don't reset the 
+                        # previous axis buttonDownT
+                        self.dbgButton("MULTIBUTTON[TAP]")
+                    # continue from the previous axis.buttonDownT
+                    self.buttonDownT = ax.buttonDownT
                 else:
-                    # "Normal" key press
-                    self.keyDownT = currT
-                self.keyIsDown = True
-                ax.keyDownCount += 1
-                ax.keyDownT = self.keyDownT
-                self.dbgKey("       -->")       # show updated values
-            holdDuration = currT - self.keyDownT
+                    # "Normal" button press
+                    self.buttonDownT = currT
+                self.buttonIsDown = True
+                ax.buttonDownCount += 1
+                ax.buttonDownT = self.buttonDownT
+                self.dbgButton("       -->")       # show updated values
+            holdDuration = currT - self.buttonDownT
             accel = self.accel * 10.0 * holdDuration  # 10 = /100% * 1000ms
             if accel > self.maxAccel:
                 accel = self.maxAccel
@@ -328,33 +318,33 @@ class MJKeyUpdater(MJUpdater):
 
             val += incr * (1.0 + accel)
             ax.currVal = val
-            ax.decayFactor = 1  # No decay while key is held
+            ax.decayFactor = 1  # No decay while button is held
         else:
-            # Key is up
-            if self.keyIsDown:
-                # key was just released
-                self.keyIsDown = False
-                ax.keyDownCount -= 1
-                if ax.keyDownCount == 0:
-                    self.dbgKey("RELEASE ALL")
-                    ax.keyUpT = currT
+            # Button is up
+            if self.buttonIsDown:
+                # button was just released
+                self.buttonIsDown = False
+                ax.buttonDownCount -= 1
+                if ax.buttonDownCount == 0:
+                    self.dbgButton("RELEASE ALL")
+                    ax.buttonUpT = currT
                 else:
-                    self.dbgKey("RELEASE SINGLE")
-                self.keyUpT = currT
-                self.dbgKey("       -->")       # show updated values
-            if (currT - self.keyUpT) < self.keyUsageTime:
+                    self.dbgButton("RELEASE SINGLE")
+                self.buttonUpT = currT
+                self.dbgButton("       -->")       # show updated values
+            if (currT - self.buttonUpT) < self.buttonUsageTime:
                 # still considered key-controlled; use our decay
                 # (as long as no other key is down):
-                if ax.keyDownCount == 0:
+                if ax.buttonDownCount == 0:
                     ax.decayFactor = self.decayFactor(ax.deltaT)
-#                    self.G.dbg(ax.dbg, "%s: KEYUSAGE decayFactor=%f", 
+#                    self.G.dbg(ax.dbg, "%s: BUTTONUSAGE decayFactor=%f", 
 #                            ax.name, self.decayFactor(ax.deltaT))
 
 
     #========================================
     # Debugging...
-    def dbgKey(self, msg=None):
-        """ Debugging for key events"""
+    def dbgButton(self, msg=None):
+        """ Debugging for button events"""
         if not self.G.Debug: return
         ax = self.axis
         if msg is None:
@@ -368,34 +358,34 @@ class MJKeyUpdater(MJUpdater):
                 "UpT",
                 "AxDownT",
                 "AxUpT",
-                "AxKeys")
+                "AxButtons")
             return
         self.G.dbg(ax.dbg+'K', "%-20s %6.3f(%6.3f): " +
                         "%6.3f %6.3f [%6.3f %6.3f] (%d)",
             ax.name+' '+msg,
             ax.currT,
             ax.deltaT,
-            self.keyDownT,
-            self.keyUpT,
-            ax.keyDownT,
-            ax.keyUpT,
-            ax.keyDownCount)
+            self.buttonDownT,
+            self.buttonUpT,
+            ax.buttonDownT,
+            ax.buttonUpT,
+            ax.buttonDownCount)
 
 #===========================================================
 class MJOneShotUpdater(MJUpdater):
     """MJUpdater for one-shot key/button presses.
     """
-    def __init__(self, key=None):
-        """Create a MJKeyUpdater using key"""
+    def __init__(self, button=None):
+        """Create a MJButtonUpdater using button"""
         super(MJOneShotUpdater, self).__init__()
-        self.key = key          # a FreePIE enum Key type
+        self.setButton(button)
 
-        self.incr = 5           # key press increment in percent of maxVal
+        self.incr = 5           # button press increment in percent of maxVal
         self.decay = None       # seconds to decay to 1% of its value
         self.fixed = None       # fixed value to set (or None if disabled)
                                 # (in percentage [-100,100] of maxVal)
         # Internal
-        self.keyIsDown = False  # True if controlling key is down.
+        self.buttonIsDown = False  # True if controlling button is down.
         self._fixed = None
 
     #========================================
@@ -410,21 +400,25 @@ class MJOneShotUpdater(MJUpdater):
         self._incr = self.incr/100.0 * self.axis.maxVal  # signed
 
     #========================================
+    def setButton(self, button):
+        self.button = Button(self.G, button)
+
+    #========================================
     def Reset(self):
-        self.keyIsDown = False
+        self.buttonIsDown = False
 
     #========================================
     def Update(self):
-        """Update this axis according to the key state.
+        """Update this axis according to the button state.
            Applies the one-shot increment.
         """
-        if not self.key: return
-        isDown = self.G.keyboard.getKeyDown(self.key)
+        if not self.button: return
+        isDown = self.button.isDown()
         ax = self.axis
         if isDown:
-            # Key is down
-            if not self.keyIsDown:
-                # Key was just depressed
+            # Button is down
+            if not self.buttonIsDown:
+                # Button was just depressed
                 val = ax.GetArrestedVal()
                 if self.fixed is None:
                     # increment
@@ -437,14 +431,14 @@ class MJOneShotUpdater(MJUpdater):
                     self.G.dbg(ax.dbg, "%7.3f %s: F= %7.2f               ",
                         ax.currT, ax.name, self._fixed)
                 ax.currVal = val
-                self.keyIsDown = True
-                # ax.keyDownCount += 1  # NO: One-shots don't count for this
+                self.buttonIsDown = True
+                # ax.buttonDownCount += 1  # NO: One-shots don't count for this
                 ax.decayFactor = 1          # no decay
         else:
-            # Key is up
-            if self.keyIsDown:
-                # key was just released
-                self.keyIsDown = False
+            # Button is up
+            if self.buttonIsDown:
+                # button was just released
+                self.buttonIsDown = False
 
 #==============================================================================
 class MJAxis(object):
@@ -483,9 +477,9 @@ class MJAxis(object):
         # -- see @property getters/setters
         self.__currVal = 0          # current axis value
         self.__decayFactor = 1.0    # this may be changed by Updaters
-        self.__keyDownCount = 0     # refcount for MJKeyUpdaters
-        self.__keyDownT = 0         # time of last key-down event on the axis
-        self.__keyUpT = 0           # time of last key-up event on the axis
+        self.__buttonDownCount = 0  # refcount for MJButtonUpdaters
+        self.__buttonDownT = 0      # time of last button-down event on the axis
+        self.__buttonUpT = 0        # time of last button-up event on the axis
 
         #========================== USER PARAMETERS ==========================
         self.name = self.vname      # Semantic name (defaults to vJoy axis)
@@ -551,25 +545,25 @@ class MJAxis(object):
         else:
             self.master.__decayFactor = val   # shared (MASTER) decay
 
-    # for multiple MJKeyUpdaters on an axis pair:
+    # for multiple MJButtonUpdaters on an axis pair:
     @property
-    def keyDownCount(self):
-        return self.master.__keyDownCount
-    @keyDownCount.setter
-    def keyDownCount(self, val):
-        self.master.__keyDownCount = val
+    def buttonDownCount(self):
+        return self.master.__buttonDownCount
+    @buttonDownCount.setter
+    def buttonDownCount(self, val):
+        self.master.__buttonDownCount = val
     @property
-    def keyUpT(self):
-        return self.master.__keyUpT
-    @keyUpT.setter
-    def keyUpT(self, val):
-        self.master.__keyUpT = val
+    def buttonUpT(self):
+        return self.master.__buttonUpT
+    @buttonUpT.setter
+    def buttonUpT(self, val):
+        self.master.__buttonUpT = val
     @property
-    def keyDownT(self):
-        return self.master.__keyDownT
-    @keyDownT.setter
-    def keyDownT(self, val):
-        self.master.__keyDownT = val
+    def buttonDownT(self):
+        return self.master.__buttonDownT
+    @buttonDownT.setter
+    def buttonDownT(self, val):
+        self.master.__buttonDownT = val
 
     #========================================
     def OnAxis(self, x):
@@ -610,9 +604,9 @@ class MJAxis(object):
         """Set this axis value to 0."""
         ax = self.master
         ax.__currVal = 0
-        self.__keyDownCount = 0
-        self.__keyDownT = 0
-        self.__keyUpT = 0
+        self.__buttonDownCount = 0
+        self.__buttonDownT = 0
+        self.__buttonUpT = 0
         for u in self.updaters:
             u.Reset()
 

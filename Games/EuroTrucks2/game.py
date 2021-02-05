@@ -82,7 +82,7 @@ class PIEGame(CJRPIEGame):
         """Called when window becomes foreground"""
         #self.steer.Reset()     # reset steering (NO! CRASH! (the truck))
         #self.look.Reset()
-        #self.steer.key.dbgKey()        # output new debug header
+        #self.steer.keyu.dbgKey()        # output new debug header
         pass
     #============================================================
     def Suspend(self):
