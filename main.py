@@ -40,7 +40,7 @@ POSSIBILITY OF SUCH DAMAGE.
 """
 
 #==============================================================================
-# DEBUGGING: Uncomment this section to allow debugging (even via native python)
+# DEBUGGING: Uncomment this section to allow debugging via native python3
 Debug = True
 import sys
 if sys.implementation.name != 'ironpython':

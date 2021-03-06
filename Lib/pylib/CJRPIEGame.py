@@ -160,7 +160,9 @@ class CJRPIEGame (PIEGameClass):
         look.trackerEnabled = True
 
         # ardea's EDTracker uses the pre-made board which is upside-down :/
-        if self.myhost == 'ardea': look.y.tracker.scale *= -1.0
+        # if self.myhost == 'ardea': look.y.tracker.scale *= -1.0
+        # Post musambi-rebuild; both need inversion:
+        look.y.tracker.scale *= -1.0
 
         self.G.printf("CJR: %s: added tracker", look.name )
 
@@ -308,6 +310,28 @@ class CJRPIEGame (PIEGameClass):
         steer.up.keyu.setButton(self.G.Key.E)
         steer.down.keyu.setButton(self.G.Key.D)
         self.G.printf("CJR: %s: added UD keys", steer.name )
+
+    #=======================================
+    def CJRSteerAddUDMouseWheel(self, steer,
+            incr = 2,           # percent axisMax per click
+            ):
+        """Add up/down mousewheel mapping to steer.Y."""
+
+        if not steer.up:
+            self.CJRSteerUD(steer)
+        u = MJOneShotUpdater()
+        u.incr = incr
+
+        steer.up.wheelu = u
+        steer.down.wheelu = u.Copy()
+        steer.up.AddUpdater(steer.up.wheelu)
+        steer.down.AddUpdater(steer.down.wheelu)
+
+        # my bindings: WHEELUP, WHEELDOWN  NB: I use FlipWheel in Windows
+        steer.up.wheelu.setButton('WHEELDOWN')
+        steer.down.wheelu.setButton('WHEELUP')
+        self.G.printf("CJR: %s: added UD MouseWheel", steer.name )
+
 
     #=======================================
     def CJRSteerUDThrottleBrake(self, steer):

@@ -1,5 +1,7 @@
 ; Global AutoHotKey mainline
 
+; To run from cygwin:  ahk <file> | cat
+
 #Include config.ahk
 
 ;===============================================================================

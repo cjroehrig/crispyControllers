@@ -218,11 +218,37 @@ class LotroWin {
 	}
 
 	;========================================
-	follow_on_all(on:=true)
+	follow_on_all(on:=true, delay:=-1)
 	; Turn following on/off for all fellows.
+	; If delay is not provided, use the default delay.
 	{
+		if ( delay < 0 ) {
+			delay := this.follow_delay
+		}
+
+		; Quickly change the state of all followers
+		; in case another async send_follower() occurs...
 		for k, win in LotroWin.Windows {
 			if ( win._fellows && win != this ){
+				this._follow_on(win, on)
+				if ( on ){
+					Dbg("{}:  {} quick-starts following.", this.title, win.title)
+					win._following := this
+				} else {
+					Dbg("{}:  {} quick-stops following.", this.title, win.title)
+					win._following := false
+				}
+			}
+		}
+
+		; then send the following keys after requisite delays
+		for k, win in LotroWin.Windows {
+			if ( win._fellows && win != this ){
+				if ( delay > 0 ) {
+					Dbg("{}: Sleeping {} ms for {}"
+					, this.title, delay, win.title )
+					Sleep(delay)
+				}
 				this._follow_on(win, on)
 			}
 		}
@@ -247,20 +273,20 @@ class LotroWin {
 				str := fellow.target_str(this)
 				; and follow
 				str .= fellow.bindings.follow
-				Dbg("Following ON:  {} -> {}", fellow.title, this.title)
+				Dbg("{}: Following ON:  {} -> {}", this.title, fellow.title, this.title)
 				SendWin(fellow.title, str)
 				fellow._following := this
 			} else {
 				; off; blip forward
 				str := fellow.bindings.forward
-				Dbg("Following OFF: {}", fellow.title)
+				Dbg("{}: Following OFF: {}", this.title, fellow.title)
 				SendWin(fellow.title, str)
 				fellow._following := false
 			}
 		} else if ( fellow ) {
-			Dbg("Can't follow self! ({})", this.title)
+			Dbg("{}: Can't follow self!", this.title)
 		} else {
-			Dbg("INTERNAL: _follow_on: fellow is NULL")
+			Dbg("{}: INTERNAL: _follow_on: fellow is NULL", this.title)
 		}
 	}
 
@@ -275,7 +301,6 @@ class LotroWin {
 	; (necessary for toggling walk/run on followers).
 	; If nudge is 2, then don't refollow (avoids warsteed dismount bug)
 	{
-		slept := false
 		if ( delay < 0 ) {
 			delay := this.follow_delay
 		}
@@ -283,11 +308,9 @@ class LotroWin {
 		for k, win in LotroWin.Windows {
 			if ( win._following == this ) {
 				; sleep first
-				if ( !slept ) {
-					if ( delay > 0 ) {
-						Sleep(delay)
-					}
-					slept := true
+				if ( delay > 0 ) {
+					Dbg("{}: Sleeping {} ms", this.title, delay )
+					Sleep(delay)
 				}
 				; follower:  target me, keystr, re-follow
 				str := win.target_str(this)
@@ -312,10 +335,10 @@ class LotroWin {
 	{
 		if ( this._fellows && n > 0 && n <= this._fellows.Length() ){
 			this._selected := this._fellows[n]
-			Dbg("SELECT: {}", this._selected.title)
+			Dbg("{}: SELECT: {}", this.title, this._selected.title)
 		} else {
 			this._selected := false
-			Dbg("SELECT: <void>")
+			Dbg("{}: SELECT: <void>", this.title )
 		}
 	}
 
@@ -400,7 +423,7 @@ class LotroWin {
 
 		; sanity check
 		if ( this._fellows[n] != fellow ){
-			Dbg("INTERNAL: _select_str: {}'s _fellows[{}]='{}'"
+			Dbg("{}: INTERNAL: _select_str: _fellows[{}]='{}'"
 				. "object doesn't match object fellow='{}'"
 				, this.title, n, this._fellows[n].title, fellow.title)
 		}

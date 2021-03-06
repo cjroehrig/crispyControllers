@@ -10,15 +10,20 @@ Fileread, LotroMode, Games/Lotro/MODE
 LotroMode := StrReplace(LotroMode, "`r")
 LotroMode := StrReplace(LotroMode, "`n")
 
-if ( LotroMode == "Solo" ) {
-	Dbg("AutoHotKey LotRO (Solo) starting")
-	#Include Games/Lotro/defs-Solo.ahk
-} else if ( LotroMode == "Party" ) {
-	Dbg("AutoHotKey LotRO (Party) starting")
-	#Include Games/Lotro/defs-Party.ahk
+Dbg( "AutoHotKey LotRO ({}) starting", LotroMode )
+
+if ( LotroMode == "DuoAH" ) {
+	#Include Games/Lotro/defs-DuoAH.ahk
+} else if ( LotroMode == "DuoAA" ) {
+	#Include Games/Lotro/defs-DuoAA.ahk
 } else if ( LotroMode == "Trio" ) {
-	Dbg("AutoHotKey LotRO (Trio) starting")
 	#Include Games/Lotro/defs-Trio.ahk
+} else if ( LotroMode == "PartyDuo" ) {
+	#Include Games/Lotro/defs-PartyDuo.ahk
+} else if ( LotroMode == "PartyDuoBeo" ) {
+	#Include Games/Lotro/defs-PartyDuoBeo.ahk
+} else if ( LotroMode == "PartyTrio" ) {
+	#Include Games/Lotro/defs-PartyTrio.ahk
 } else {
 	Dbg("AutoHotKey LotRO: Unknown or Missing Lotro/MODE: " + LotroMode )
 }

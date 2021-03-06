@@ -61,6 +61,11 @@ class PIEGame(CJRPIEGame):
             maxAccel = 7,           # Maximum acceleration factor
             decay = 0.8,            # seconds to decay to 10% of its value
             )
+        ## Up/Down MouseWheel (throttle/brake)
+        self.CJRSteerAddUDMouseWheel( self.steer,
+            incr = 2,               # percent axisMax per click
+            )
+
         ## Up/Down Keyboard (throttle/brake)
         self.CJRSteerAddUDKey( self.steer,
             incr = 25,              # percent axisMax per second

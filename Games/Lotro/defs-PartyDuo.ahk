@@ -1,4 +1,4 @@
-; CJRParty Lotro setup for 2-boxing (dps/heal) with a full party
+; CJRPartyDuo Lotro setup for 2-boxing (dps/heal) with my full party
 
 ;===============================================================================
 ; Window (and fellowship) definitions
@@ -8,31 +8,30 @@
 ; skills: array of skill keys to be controlled by other fellows.
 ;    ^Ctrl == target;   +Shift == assist  F1-F6 is fellow member (F1=self)
 ;
-;		MAIN=DPS;  AUX=Healer;		TERTIARY=Tank
 ;	# 			self		N=1			N=2
 ;	# window	F1			F2			F3			F4			F5
-;	MAIN		Daer		Mel			Boph		Vehr		Germ
-;	AUX			Mel			Daer		Boph		Vehr		Germ
+;	DPS			Daer		Mel			Boph		Vehr		[Germ]
+;	HEAL		Mel			Daer		Boph		Vehr		[Germ]
 ;
-; MAIN -- DPS
-new LotroWin( {title: "LotRO MAIN"		
+; DPS
+new LotroWin( {title: "LotRO DPS"		
 		,width:1280,		height:720,		x:0,		y:322
 		,bindings: KK
-		,fellows:["LotRO AUX"]
+		,fellows:["LotRO HEAL"]
 		,select: 1			; Daer -> Mel
-		; DPS: Assist Germ (Shift F5)
-		,skills:[	 "+{F5}{F1}"
-					,"+{F5}{F2}"
-					,"+{F5}{F3}"
-					,"+{F5}{F4}"
-					,"+{F5}{F5}"
-					,"+{F5}{F6}" ]})
+		; DPS: Assist Vehr (Shift F4)
+		,skills:[	 "+{F4}{F1}"
+					,"+{F4}{F2}"
+					,"+{F4}{F3}"
+					,"+{F4}{F4}"
+					,"+{F4}{F5}"
+					,"+{F4}{F6}" ]})
 
-; AUX -- Healer
-new LotroWin( {title: "LotRO AUX"
-		,width:1280,		height:720,		x:624,		y:0
+; HEAL
+new LotroWin( {title: "LotRO HEAL"
+		,width:1280,		height:720,		x:0,		y:0
 		,bindings: KK
-		,fellows:["LotRO MAIN"]
+		,fellows:["LotRO DPS"]
 		,select: 1			; Mel -> Daer
 		; Healer: Target Boph (Tank) (Ctrl F3)
 		,skills:[	 "^{F3}{F1}"
@@ -45,7 +44,7 @@ new LotroWin( {title: "LotRO AUX"
 
 ; INACTIVE
 new LotroWin( {title: "LotRO INACTIVE"
-		,width:1280,		height:720,		x:0,		y:0
+		,width:1280,		height:720,		x:624,		y:0
 		,bindings: KK
 		,fellows:false
 		,select:false

@@ -37,11 +37,11 @@ class Button(object):
 
     # Names for buttons
     MouseButtonDict = {
-        'LMB'           : 1,
+        'LMB'           : 0,
+        'RMB'           : 1,
         'MMB'           : 2,
-        'RMB'           : 3,
-        'WHEELUP'       : 4,
-        'WHEELDOWN'     : 5,
+        'WHEELUP'       : 3,
+        'WHEELDOWN'     : 4,
     }
 
 
@@ -83,16 +83,22 @@ class KeyButton(Button):
 
 #===========================================================
 # Mouse button using default FreePIE mouse
+# See FreePIE.Core.Plugins/MousePlugin.cs for details
 class MouseButton(Button):
     def __init__(self, G, button):
         super(MouseButton, self).__init__(G, button)
         # replace button with its FreePIE mouse button ID
         if button in self.MouseButtonDict:
-            button = self.MouseButtonDict[button]
+            self.button = self.MouseButtonDict[button]
         else:
             self.button = None # error
 
     def isDown(self):
-        """Return true if we are pressed"""
-        return self.G.mouse.getButton(self.button)
+        if self.button < 3:
+            return self.G.mouse.getPressed(self.button)
+        elif self.button == 3:
+            return self.G.mouse.wheel > 0
+        elif self.button == 4:
+            return self.G.mouse.wheel < 0
+        return False
 

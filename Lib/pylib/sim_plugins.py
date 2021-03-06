@@ -169,11 +169,7 @@ midi = SimMIDI()
 
 #==============================================================================
 # Key class 
-if sys.version_info[0] < 3:     # really only checking for 2.7
-    from crispy.enum import Enum
-else:
-    from enum import Enum
-
+from enum import Enum
 class Key(Enum):
     D0 = 0
     D1 = 1
@@ -325,10 +321,8 @@ class Key(Enum):
 # window
 #  NB: this needs Windows Python with PIP modules: pywin32 and psutil
 try:
-    if sys.version_info[0] > 2:
-        import builtins
-        if 'sim_DUMMYWINDOW' in dir(builtins) and builtins.sim_DUMMYWINDOW: raise ModuleNotFoundError()
-
+    import builtins
+    if 'sim_DUMMYWINDOW' in dir(builtins) and builtins.sim_DUMMYWINDOW: raise ModuleNotFoundError()
 
     import win32gui
     import win32process

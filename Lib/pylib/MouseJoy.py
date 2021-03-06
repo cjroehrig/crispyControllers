@@ -401,7 +401,10 @@ class MJOneShotUpdater(MJUpdater):
 
     #========================================
     def setButton(self, button):
-        self.button = Button(self.G, button)
+        if button:
+            self.button = Button(self.G, button)
+        else:
+            self.button = None
 
     #========================================
     def Reset(self):
@@ -419,7 +422,8 @@ class MJOneShotUpdater(MJUpdater):
             # Button is down
             if not self.buttonIsDown:
                 # Button was just depressed
-                val = ax.GetArrestedVal()
+                #val = ax.GetArrestedVal()
+                val = ax.currVal
                 if self.fixed is None:
                     # increment
                     val += self._incr

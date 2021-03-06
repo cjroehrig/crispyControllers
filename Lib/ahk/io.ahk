@@ -193,8 +193,8 @@ SendWin(wintitle, keys)
 		WinGetActiveTitle, awin
 		if ( wintitle != awin ){
 			; Background window
-			Dbg("SEND({}) : {}", wintitle, keys)
 			FocusWin(wintitle)
+			Dbg("SEND({}) : {}", wintitle, keys)
 			ControlSend, , %keys%, %wintitle%
 			UnfocusWin(wintitle)
 		} else {

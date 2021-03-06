@@ -15,17 +15,17 @@
 
 ; FOLLOW ON
 +f::	LotroWin.Active.follow_on_all(true)				; all fellows
-!+f::	LotroWin.Active.follow_on(true)					; just selected
+!^f::	LotroWin.Active.follow_on(true)					; just selected
 ; FOLLOW OFF
-+s::	LotroWin.Active.follow_on_all(false)			; all fellows
-!+s::	LotroWin.Active.follow_on(false)				; just selected
++s::	LotroWin.Active.follow_on_all(false,0)			; all fellows
+!^s::	LotroWin.Active.follow_on(false)				; just selected
 
 
 ; FOLLOWing keys -- sent to active window and all its followers
 ; (after the default delay)
 +d::	LotroWin.Active.send_following("+d",,2)			; mount/unmount
 Space::	LotroWin.Active.send_following("{Space}")		; jump
-^Tab::	LotroWin.Active.send_following("^{Tab}",,1)		; walk/run
+^Tab::	LotroWin.Active.send_following("^{Tab}",0,1)	; walk/run
 c::		LotroWin.Active.send_following("c", 200)		; warsteed stop
 +z::	LotroWin.Active.send_following("+z")			; warsteed boost
 
