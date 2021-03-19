@@ -1,0 +1,74 @@
+#!/bin/bash 
+#
+
+CCDIR="$(cygpath "$USERPROFILE")/Documents/crispyControllers"
+FREEPIE_DIR="/cygdrive/c/Program Files (x86)/FreePIE"
+FREEPIE_DEV_DIR="$CCDIR/build/FreePIE/FreePIE/Output"
+#FREEPIE_DEV_DIR="$CCDIR/build/FreePIE/FreePIE.FOO/FreePIE.Console/bin/Debug"
+
+FREEPIE_CONSOLE="FreePIE.Console.exe"
+FREEPIE_GUI="FreePIE.exe"
+
+#==============================================================================
+# USAGE
+usage(){
+echo >&2 "\
+Usage: `basename $0` [OPTIONS] <file>
+Options:
+    -D              Run from the developer/build Output dir instead.
+    -G              Run the GUI version instead of the console.
+    -n              Don't do anything; instead show what would be done.
+    -v              Increase verbosity.
+    -h              Print usage help and exit.
+"
+}
+
+
+#==============================================================================
+# MAIN
+
+VERBOSE=0
+EXEC=""
+FREEPIE="$FREEPIE_CONSOLE"
+FREEPIE_ARGS=()
+
+OPTIND=1
+while getopts DGnv\?h arg; do
+	case "$arg" in
+	D)	FREEPIE_DIR="$FREEPIE_DEV_DIR" ;;
+	G)
+		FREEPIE="$FREEPIE_GUI"
+		FREEPIE_ARGS=( /run )
+		;;
+    n) EXEC="echo" ;;
+    v) let VERBOSE+=1 ;;
+    [?h]) usage; exit 2 ;;
+    *) echo >&2 "invalid option: $arg"; usage; exit 2 ;;
+    esac
+done
+# skip option arguments:
+shift `expr $OPTIND - 1`
+
+# Parse rest of args
+case $# in
+1) arg="${1}"; ;;
+0) echo >&2 "`basename $0`: missing argument"; usage; exit 2 ;;
+*) echo >&2 "`basename $0`: extra argument(s)"; usage; exit 2 ;;
+esac
+
+# check we're administrator
+if [ $VERBOSE -gt 0 -a -z "$ISROOT" ]; then
+	echo >&2 "WARNING: Not Administrator - some devices may not work!"
+fi
+
+# convert to Windows path with proper physical dir
+cd "$( pwd -P )"
+arg="$( cygpath -w "$PWD/$arg" )"
+
+if [ $VERBOSE -gt 1 ]; then
+	echo >&2 "Launching $arg"
+	echo "$FREEPIE_DIR/$FREEPIE" "$arg" "${FREEPIE_ARGS[@]}"
+fi
+
+# launch
+$EXEC "$FREEPIE_DIR/$FREEPIE" "$arg" "${FREEPIE_ARGS[@]}"

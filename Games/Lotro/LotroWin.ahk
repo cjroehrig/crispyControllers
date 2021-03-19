@@ -32,6 +32,8 @@
 ;#Include util.ahk
 ;#Include io.ahk
 
+LotroInactiveWinTitle := "LotRO INACTIVE"
+
 WinVersion := DllCall("GetVersion") & 0xFF
 if ( WinVersion == 10 ) {
 	Dbg("Windows 10")
@@ -220,43 +222,39 @@ class LotroWin {
 	;========================================
 	follow_on_all(on:=true, delay:=-1)
 	; Turn following on/off for all fellows.
-	; If delay is not provided, use the default delay.
+	; Delay is in milliseconds. If delay is not provided, use the default delay.
 	{
 		if ( delay < 0 ) {
 			delay := this.follow_delay
 		}
 
 		; Quickly change the state of all followers
-		; in case another async send_follower() occurs...
-		for k, win in LotroWin.Windows {
-			if ( win._fellows && win != this ){
-				this._follow_on(win, on)
-				if ( on ){
-					Dbg("{}:  {} quick-starts following.", this.title, win.title)
-					win._following := this
-				} else {
-					Dbg("{}:  {} quick-stops following.", this.title, win.title)
-					win._following := false
-				}
+		; (in case another async send_follower() occurs before we're finished)
+		for k, win in this._fellows {
+			this._follow_on(win, on)
+			if ( on ){
+				Dbg("{}:  {} quick-starts following.", this.title, win.title)
+				win._following := this
+			} else {
+				Dbg("{}:  {} quick-stops following.", this.title, win.title)
+				win._following := false
 			}
 		}
 
 		; then send the following keys after requisite delays
-		for k, win in LotroWin.Windows {
-			if ( win._fellows && win != this ){
-				if ( delay > 0 ) {
-					Dbg("{}: Sleeping {} ms for {}"
-					, this.title, delay, win.title )
-					Sleep(delay)
-				}
-				this._follow_on(win, on)
+		for k, win in this._fellows {
+			if ( delay > 0 ) {
+				Dbg("{}: Sleeping {} ms for {}"
+				, this.title, delay, win.title )
+				Sleep(delay)
 			}
+			this._follow_on(win, on)
 		}
 	}
 
 	;========================================
 	follow_on(on:=true)
-	; Turn following on/off for the selected fellow.
+	; Turn following on/off for the currently selected fellow.
 	{
 		if (this._selected) {
 			this._follow_on(this._selected, on)
@@ -294,9 +292,9 @@ class LotroWin {
 
 	;========================================
 	send_following(keystr, delay:=-1, nudge:=0)
-	; Send keystr to self and any following windows (after a default delay) 
+	; Send keystr to self and any following windows (after a delay) 
 	; and continue following.
-	; If delay is not provided, use the default delay.
+	; Delay is in milliseconds. If delay is not provided, use the default delay.
 	; If nudge is 1, then move forward a bit after keystr, before refollowing
 	; (necessary for toggling walk/run on followers).
 	; If nudge is 2, then don't refollow (avoids warsteed dismount bug)

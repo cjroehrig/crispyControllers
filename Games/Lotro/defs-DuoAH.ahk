@@ -25,7 +25,7 @@ new LotroWin( {title: "LotRO ASSIST"
 
 ; HEAL
 new LotroWin( {title: "LotRO HEAL"
-		,width:1280,		height:720,		x:0,		y:0
+		,width:1280,		height:720,		x:624,		y:0
 		,bindings: KK
 		,fellows:["LotRO ASSIST"]
 		,select: 1			; first fellow
@@ -38,8 +38,8 @@ new LotroWin( {title: "LotRO HEAL"
 					,"^{F2}{F6}" ]})
 
 ; INACTIVE
-new LotroWin( {title: "LotRO INACTIVE"
-		,width:1280,		height:720,		x:624,		y:0
+new LotroWin( {title: LotroInactiveWinTitle
+		,width:1280,		height:720,		x:0,		y:0
 		,bindings: KK
 		,fellows:false
 		,skills:false })

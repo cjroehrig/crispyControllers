@@ -43,7 +43,7 @@ new LotroWin( {title: "LotRO HEAL"
 
 
 ; INACTIVE
-new LotroWin( {title: "LotRO INACTIVE"
+new LotroWin( {title: LotroInactiveWinTitle
 		,width:1280,		height:720,		x:624,		y:0
 		,bindings: KK
 		,fellows:false

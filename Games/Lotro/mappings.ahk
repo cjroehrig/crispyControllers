@@ -23,20 +23,22 @@
 
 ; FOLLOWing keys -- sent to active window and all its followers
 ; (after the default delay)
-+d::	LotroWin.Active.send_following("+d",,2)			; mount/unmount
 Space::	LotroWin.Active.send_following("{Space}")		; jump
 ^Tab::	LotroWin.Active.send_following("^{Tab}",0,1)	; walk/run
 c::		LotroWin.Active.send_following("c", 200)		; warsteed stop
 +z::	LotroWin.Active.send_following("+z")			; warsteed boost
 
+; give a bit of extra time for followers to stop before mounting...
++d::	LotroWin.Active.send_following("+d",1500,2)		; mount/unmount
+
 ; Outfits
-=::		LotroWin.Active.send_following("=")				; Outfit 1
-+=::	LotroWin.Active.send_following("+=")			; Outfit 2
-^=::	LotroWin.Active.send_following("^=")			; Outfit 3
-!=::	LotroWin.Active.send_following("!=")			; Outfit 4
-^+=::	LotroWin.Active.send_following("^+=")			; Outfit 5
-!+=::	LotroWin.Active.send_following("!+=")			; Outfit 6
-!^=::	LotroWin.Active.send_following("!^=")			; Outfit 7
+=::		LotroWin.Active.send_following("=")				; Outfit 1: Combat
++=::	LotroWin.Active.send_following("+=")			; Outfit 2: Travel
+^=::	LotroWin.Active.send_following("^=")			; Outfit 3: Rain
+^+=::	LotroWin.Active.send_following("^+=")			; Outfit 4: Snow
+!=::	LotroWin.Active.send_following("!=")			; Outfit 5: Festival
+!+=::	LotroWin.Active.send_following("!+=")			; Outfit 6: Relax
+!^=::	LotroWin.Active.send_following("!^=")			; Outfit 7: 
 
 
 ;==============================================================================

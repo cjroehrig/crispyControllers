@@ -1,4 +1,4 @@
-; CJRPartyTrio Lotro setup for 3-boxing (dps/heal/tank) with a full party
+; PartyTrioMel Lotro setup for 3-boxing (heal/heal/tank) with a full party
 ; Identical to CJRTrio except DPS assists fellow 4 instead of tank.
 
 ;===============================================================================
@@ -66,7 +66,7 @@ new LotroWin( {title: "LotRO TANK"
 					,"+{F3}{F6}" ]})
 
 ; INACTIVE
-new LotroWin( {title: "LotRO INACTIVE"
+new LotroWin( {title: LotroInactiveWinTitle
 		,width:1280,		height:720,		x:624,		y:0
 		,bindings: KK
 		,fellows:false

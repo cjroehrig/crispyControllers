@@ -21,7 +21,8 @@ __pycache__/
 /Utils
 /dev
 /Lib/pylib/TODO/
-PKG/
+/PKG/*
+/build/FreePIE/PKG/
 
 
 #==================================================
