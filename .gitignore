@@ -28,6 +28,9 @@ __pycache__/
 #==================================================
 # Whitelist
 
+# for empty directories:
+!.gitkeep
+
 # Explicitly include our main files:
 !/main.py
 !/main.ahk
