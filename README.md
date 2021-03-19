@@ -2,8 +2,11 @@
 
 A framework and library for FreePIE and AutoHotKey with examples.
 
-FreePIE is a Python-based scripting engine for analog game controllers.
-AutoHotKey is a keyboard remapping scripting engine.
+(FreePIE is a Python-based scripting engine for analog game controllers.
+AutoHotKey is a keyboard remapping scripting engine.)
+
+This is in a fairly rough state but hopefully useable.
+Let me know if you are having issues and I'll try to help.
 
 Updated: CJR Jun 2020
 
