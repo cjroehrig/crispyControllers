@@ -1,4 +1,4 @@
-; CJRPartyDuoBeo Lotro setup for 2-boxing (tank/heal) with my full party
+; PartyDuoTH Lotro setup for 2-boxing (tank/heal) with my full party
 
 ;===============================================================================
 ; Window (and fellowship) definitions
@@ -10,8 +10,8 @@
 ;
 ;	# 			self		N=1			N=2
 ;	# window	F1			F2			F3			F4			F5
-;	TANK		Beo			Est			Boph		Vehr		
-;	HEAL		Est			Beo			Boph		Vehr		
+;	TANK		TANK		HEAL		Boph		<assist>
+;	HEAL		HEAL		TANK		Boph		<assist>		
 ;
 ; TANK
 new LotroWin( {title: "LotRO TANK"		
@@ -19,7 +19,7 @@ new LotroWin( {title: "LotRO TANK"
 		,bindings: KK
 		,fellows:["LotRO HEAL"]
 		,select: 1			; HEAL
-		; TANK: Assist Vehr (Shift F4)
+		; TANK: Assist <assist> (Shift F4)
 		,skills:[	 "+{F4}{F1}"
 					,"+{F4}{F2}"
 					,"+{F4}{F3}"
@@ -33,7 +33,7 @@ new LotroWin( {title: "LotRO HEAL"
 		,bindings: KK
 		,fellows:["LotRO TANK"]
 		,select: 1			; TANK
-		; Healer: Target Beo (Tank) (Ctrl F3)
+		; Healer: Target TANK (Ctrl F3)
 		,skills:[	 "^{F2}{F1}"
 					,"^{F2}{F2}"
 					,"^{F2}{F3}"

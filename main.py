@@ -206,7 +206,8 @@ if starting:
 
     #================================================
     # Loop interval (in milliseconds)  -- default is 1 ms
-    system.threadExecutionInterval = 1
+    system.setThreadTiming(TimingTypes.HighresSystemTimer)
+    system.threadExecutionInterval = 2
 
     #================================================
     # Import Games and initialize the Game Switcher
@@ -217,6 +218,7 @@ if starting:
     import Games.EuroTrucks2
     import Games.AmerTrucks
     import Games.Kerbal
+#    import Games.NoMansSky
     import Games.JoystickTest
 
     switcher = GameSwitcher(G)

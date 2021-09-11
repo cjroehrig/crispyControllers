@@ -7,6 +7,8 @@
 ; Read file to determine current Lotro mode
 
 Fileread, LotroMode, Games/Lotro/MODE
+LotroMode := RegExReplace(LotroMode, "#[^\n]*")
+LotroMode := RegExReplace(LotroMode, "\s")
 LotroMode := StrReplace(LotroMode, "`r")
 LotroMode := StrReplace(LotroMode, "`n")
 
@@ -20,8 +22,8 @@ if ( LotroMode == "DuoAH" ) {
 	#Include Games/Lotro/defs-Trio.ahk
 } else if ( LotroMode == "PartyDuo" ) {
 	#Include Games/Lotro/defs-PartyDuo.ahk
-} else if ( LotroMode == "PartyDuoBeo" ) {
-	#Include Games/Lotro/defs-PartyDuoBeo.ahk
+} else if ( LotroMode == "PartyDuoTH" ) {
+	#Include Games/Lotro/defs-PartyDuoTH.ahk
 } else if ( LotroMode == "PartyTrio" ) {
 	#Include Games/Lotro/defs-PartyTrio.ahk
 } else {

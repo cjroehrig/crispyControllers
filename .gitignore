@@ -7,6 +7,11 @@
 # exclude the Windows symlink
 /crispy
 
+# cruft anywhere
+*OLD
+*OLD.*
+*SAV
+*SAV.*
 # Python caches anywhere
 __pycache__/
 *.py[cod]

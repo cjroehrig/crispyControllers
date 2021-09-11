@@ -99,7 +99,7 @@ class AutoKey {
 		this.autoOn := false
 		this.lastEv := A_TickCount
 		this.lastUp := 0
-		;Dbg("AUTOKEY: New({})", key)
+		Dbg("AUTOKEY: New({})", key)
 		return this
 	}
 
@@ -109,10 +109,10 @@ class AutoKey {
 		t := A_TickCount
 		if ( !this.autoOn ){
 			seq := "{" . this.key . " Up}"
-			;Dbg("AUTOKEY({}) UP      dt={:.3f}",this.key, (t-this.lastEv)/1000)
+			Dbg("AUTOKEY({}) UP      dt={:.3f}",this.key, (t-this.lastEv)/1000)
 			Send, %seq%
 		} else {
-			;Dbg("AUTOKEY({}) UP-ign  dt={:.3f}",this.key, (t-this.lastEv)/1000)
+			Dbg("AUTOKEY({}) UP-ign  dt={:.3f}",this.key, (t-this.lastEv)/1000)
 		}
 		this.lastEv := t
 		this.lastUp := t
@@ -127,7 +127,7 @@ class AutoKey {
 			t := A_TickCount
 			seq := "{" . this.key . " Up}"
 			Send, %seq%
-			;Dbg("AUTOKEY({}) AUTO-X  dt={:.3f}",this.key, (t-this.lastEv)/1000)
+			Dbg("AUTOKEY({}) AUTO-X  dt={:.3f}",this.key, (t-this.lastEv)/1000)
 			this.autoOn := false
 			this.lastEv := t
 ;		}
@@ -137,15 +137,15 @@ class AutoKey {
 	; Press the key and figure out if it should be auto'd.
 	{
 		t := A_TickCount
-		;Dbg("AUTOKEY({}) DOWN    dt={:.3f}",this.key, (t-this.lastEv)/1000)
+		Dbg("AUTOKEY({}) DOWN    dt={:.3f}",this.key, (t-this.lastEv)/1000)
 		if (this.autoOn) {
 			; already auto'd; terminate auto
 			this.autoOn := false
-			;Dbg("AUTOKEY({}) AUTOOFF dt={:.3f}",this.key, (t-this.lastEv)/1000)
+			Dbg("AUTOKEY({}) AUTOOFF dt={:.3f}",this.key, (t-this.lastEv)/1000)
 		} else if ( (t - this.lastUp) < AutoKey.threshold ){
 			; pressed again within threshhold; go to auto
 			this.autoOn := true
-			;Dbg("AUTOKEY({}) AUTO-ON dt={:.3f}",this.key, (t-this.lastEv)/1000)
+			Dbg("AUTOKEY({}) AUTO-ON dt={:.3f}",this.key, (t-this.lastEv)/1000)
 		}
 		this.lastEv := t
 		seq := "{" . this.key . " Down}"

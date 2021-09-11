@@ -330,12 +330,16 @@ try:
     class SimWindow:
         @property
         def getActive(self):
-            handle = win32gui.GetForegroundWindow()
-            tid, pid = win32process.GetWindowThreadProcessId(handle)
-            process = psutil.Process(pid)
-            pname = process.name()
-            if pname.endswith(".exe"):
-                pname = pname[:-4]
+            try:
+                handle = win32gui.GetForegroundWindow()
+                tid, pid = win32process.GetWindowThreadProcessId(handle)
+                process = psutil.Process(pid)
+                pname = process.name()
+                if pname.endswith(".exe"):
+                    pname = pname[:-4]
+            #except NoSuchProcess as err:
+            except:
+                return None
             return pname
 except ModuleNotFoundError:
     print("No pywin32 found - using dummy SimWindow")
