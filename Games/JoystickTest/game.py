@@ -34,10 +34,14 @@ class PIEGame(CJRPIEGame):
         # LOOK
         self.look = self.CJRLook()
         self.CJRLookAddTracker( self.look,
-            smoothing=80,          # smoothing interval in ms
-            scale = 2.8,            # scale multiplier at the origin (offset)
-            accel = 0.25,           # percent of squared offset to add
-            maxAccel = 1.5,         # Maximum acceleration factor
+#            smoothing=80,          # smoothing interval in ms
+#            scale = 2.8,            # scale multiplier at the origin (offset)
+#            accel = 0.25,           # percent of squared offset to add
+#            maxAccel = 1.5,         # Maximum acceleration factor
+            smoothing=160,          # smoothing interval in ms
+            scale = 3.0,            # scale multiplier at the origin (offset)
+            accel = 0.35,           # percent of squared offset to add
+            maxAccel = 2.5,         # Maximum acceleration factor
             )
         self.CJRLookAddMouse( self.look,
             scale=4.0,              # joy axis travel per mouse pixel

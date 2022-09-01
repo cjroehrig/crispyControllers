@@ -5,8 +5,11 @@
 #Include Lib/ahk/AutoKey.ahk
 AutoKey.Threshold := 300 	; ms
 
-; common AHK hotkeys for all windows
 #Include Lib/ahk/borderless.ahk
+
+; For KingdomCome
+#Include Lib/ahk/Process.ahk
+
 
 double_win(win)
 ; double the size of win (wintitle)
@@ -15,3 +18,13 @@ double_win(win)
 	WinMove, %win%,, x, y, w*2, h*2
 	return
 }
+
+;=======================================
+; Window Groups
+
+; VNC windows
+; NB: title matching is done by SetTitleMatchMode
+GroupAdd, VNCWindows, tringa ahk_exe vncviewer.exe
+GroupAdd, VNCWindows, calypte ahk_exe vncviewer.exe
+GroupAdd, VNCWindows, pipilo ahk_exe vncviewer.exe
+GroupAdd, VNCWindows, tyto ahk_exe vncviewer.exe

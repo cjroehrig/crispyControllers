@@ -28,7 +28,15 @@ SetWinDelay 0
 
 SetTitleMatchMode 1		; leading match for window titles
 
-FullScreen := { width:1920, height: 1080 }
+StringLower, Hostname, A_ComputerName
+
+switch Hostname
+{
+	case "aquila":
+		FullScreen := { width:2560, height: 1440 }
+	default:
+		FullScreen := { width:1920, height: 1080 }
+}
 
 ;===============================================================================
 ; io Config

@@ -3,7 +3,6 @@
 ;===============================================================================
 ; Window (and fellowship) definitions
 
-; Windowed: 1280x720
 ; fellows: array of titles of (possible) fellow windows in fellowship order.
 ; skills: array of skill keys to be controlled by other fellows.
 ;    ^Ctrl == target;   +Shift == assist  F1-F6 is fellow member (F1=self)
@@ -11,7 +10,7 @@
 
 ; ASSIST
 new LotroWin( {title: "LotRO ASSIST"		
-		,width:1280,		height:720,		x:0,		y:322
+		,winpos: LotroWinPos_botleft
 		,bindings: KK
 		,fellows:["LotRO AUX"]
 		,select: 1			; first fellow
@@ -25,7 +24,7 @@ new LotroWin( {title: "LotRO ASSIST"
 
 ; AUX
 new LotroWin( {title: "LotRO AUX"
-		,width:1280,		height:720,		x:624,		y:0
+		,winpos: LotroWinPos_topright
 		,bindings: KK
 		,fellows:["LotRO ASSIST"]
 		,select: 1			; first fellow
@@ -39,7 +38,7 @@ new LotroWin( {title: "LotRO AUX"
 
 ; INACTIVE
 new LotroWin( {title: LotroInactiveWinTitle
-		,width:1280,		height:720,		x:0,		y:0
+		,winpos: LotroWinPos_topleft
 		,bindings: KK
 		,fellows:false
 		,skills:false })

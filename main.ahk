@@ -9,6 +9,7 @@
 
 #Include Games/CJRCommon/defs.ahk
 #Include Games/Lotro/defs.ahk
+#Include Games/KingdomCome/defs.ahk
 
 ;===============================================================================
 ; Hotkey mappings only below here
@@ -23,6 +24,9 @@
 #Include Games/Kerbal/mappings.ahk
 #Include Games/ESO/mappings.ahk
 ;#Include Games/RDR2/mappings.ahk
+#Include Games/LANoire/mappings.ahk
+#Include Games/GoogleEarth/mappings.ahk
+#Include Games/KingdomCome/mappings.ahk
 ;#Include Games/EliteDangerous/mappings.ahk
 ; FINISHED:
 ;#Include Games/AC2/mappings.ahk

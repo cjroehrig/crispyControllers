@@ -14,11 +14,11 @@
 ; FOLLOWING 
 
 ; FOLLOW ON
-+f::	LotroWin.Active.follow_on_all(true)				; all fellows
-!^f::	LotroWin.Active.follow_on(true)					; just selected
++f::	LotroWin.Active.follow_me_all(true)				; all fellows
+!^f::	LotroWin.Active.follow_me(true)					; just selected
 ; FOLLOW OFF
-+s::	LotroWin.Active.follow_on_all(false,0)			; all fellows
-!^s::	LotroWin.Active.follow_on(false)				; just selected
++s::	LotroWin.Active.follow_me_all(false,0)			; all fellows
+!^s::	LotroWin.Active.follow_me(false)				; just selected
 
 
 ; FOLLOWing keys -- sent to active window and all its followers

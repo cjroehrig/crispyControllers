@@ -161,8 +161,7 @@ class CJRPIEGame (PIEGameClass):
 
         # ardea's EDTracker uses the pre-made board which is upside-down :/
         # if self.myhost == 'ardea': look.y.tracker.scale *= -1.0
-        # Post musambi-rebuild; both need inversion:
-        look.y.tracker.scale *= -1.0
+        if self.myhost == 'ardea': look.y.tracker.scale *= -1.0
 
         self.G.printf("CJR: %s: added tracker", look.name )
 

@@ -23,15 +23,14 @@ Numpad6::	[					; Collections
 Numpad7::	m					; map
 Numpad8::	o					; Social
 ^Numpad8::	Send p				; Group	(NB: shift doesn't work...)
-Numpad9::	Send {Backspace}=-	; UI toggle; nameplates/healthbar toggle
+Numpad9::	Send {Backspace}=-	; toggle UI/nameplates/healthbars
 NumpadDot::	J					; Cycle focused quest
 Numpad0::	.					; Toggle in-game cursor
 
-; Naga keybindings
-;Numpad0::,				; toggle cursor
+Numpad5::	G					; use
+
 
 ; unbound
-;Numpad5::				;
 ;NumpadEnter::			; chat
 
 #IfWinActive

@@ -1,3 +1,5 @@
+; XXX: watch out for this...
+^!p::	Process_Resume("KingdomCome.exe")
 ;===============================================================================
 ; CJR's Common Hotkey definitions -- active for all windows/programs
 
@@ -11,8 +13,8 @@
 ; NOPE: doesn't work
 ;RAlt:: Insert
 
-; Map Left Win to Ctrl (except for tringa VNC)
-#IfWinNotActive, tringa,
+; Map Left Win to Ctrl (except for VNC windows)
+#IfWinNotActive, ahk_group VNCWindows
 *LWin::		Send {LControl Down}
 *LWin Up::	Send {LControl Up}
 #IfWinNotActive

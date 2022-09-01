@@ -4,7 +4,6 @@
 ;===============================================================================
 ; Window (and fellowship) definitions
 
-; Windowed: 1280x720
 ; fellows: array of titles of fellow windows in fellowship order.
 ; skills: array of skill keys to be controlled by other fellows.
 ;    ^Ctrl == target;   +Shift == assist  F1-F6 is fellow member (F1=self)
@@ -25,7 +24,7 @@
 
 ; DPS
 new LotroWin( {title: "LotRO DPS"		
-		,width:1280,		height:720,		x:0,		y:322
+		,winpos: LotroWinPos_botleft
 		,bindings: KK
 		,fellows:["LotRO HEAL", "LotRO TANK"]
 		,select: 2			; Tank
@@ -39,7 +38,7 @@ new LotroWin( {title: "LotRO DPS"
 
 ; HEAL
 new LotroWin( {title: "LotRO HEAL"
-		,width:1280,		height:720,		x:0,		y:0
+		,winpos: LotroWinPos_topleft
 		,bindings: KK
 		,fellows:["LotRO DPS", "LotRO TANK"]
 		,select: 2			; Tank
@@ -53,7 +52,7 @@ new LotroWin( {title: "LotRO HEAL"
 
 ; TANK
 new LotroWin( {title: "LotRO TANK"
-		,width:1280,		height:720,		x:624,		y:0
+		,winpos: LotroWinPos_topright
 		,bindings: KK
 		,fellows:["LotRO HEAL", "LotRO DPS"]
 		,select: 1			; Healer
@@ -67,7 +66,7 @@ new LotroWin( {title: "LotRO TANK"
 
 ; INACTIVE
 new LotroWin( {title: LotroInactiveWinTitle
-		,width:1280,		height:720,		x:624,		y:0
+		,winpos: LotroWinPos_topright
 		,bindings: KK
 		,fellows:false
 		,select:false

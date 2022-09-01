@@ -29,7 +29,6 @@ __pycache__/
 /PKG/*
 /build/FreePIE/PKG/
 
-
 #==================================================
 # Whitelist
 
@@ -41,6 +40,8 @@ __pycache__/
 !/main.ahk
 !/config.ahk
 !/README.md
+!/CHANGELOG.md
+!/VERSION.txt
 !/.gitignore
 !/Games/
 !/Lib/

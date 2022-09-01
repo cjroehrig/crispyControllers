@@ -67,7 +67,7 @@ but may have missed a hard-coded path here and there.
 
 ------------------------------------------------
 ## AutoHotkey
-- Update PKG with current installer:
+- Update ./PKG with current installer:
 	https://www.autohotkey.com/
 - Install to C:/$PF/AutoHotkey
 
@@ -78,7 +78,7 @@ but may have missed a hard-coded path here and there.
 
 ------------------------------------------------
 ## vJoy (virtual joystick device for FreePIE)
-- Update PKG with current installer:
+- Update ./PKG with current installer:
 	http://vjoystick.sourceforge.net
 	> NB: (create wrapper dir with correct version number)
 - Install with all defaults (to C:/$PF/vJoy + driver)
@@ -128,15 +128,17 @@ version.
 ------------------------------------------------
 ## EDTracker
 ### EDTrackerGUI
-- install EDTracker2-GUI-V4.0.4 from PKG/EDTracker to:
-	C:/$PF/EDTracker2-GUI
-- ... 
+- Open EDTracker2-GUI-V4.0.4.zip from ./PKG/EDTracker
+	and drag the EDTrackerUI404 folder to:
+	C:/$PF/EDTrackerUI
 
 ### arduino
 - download the .ZIP (non-admin install) version to PKG/EDTracker
-- Install to C:/$PF/arduino
+	open the arduino-$VER-windows.zip file and drag the contained folder to:
+	C:/$PF/arduino
 
 ### EDTracker hardware def and libs:
 	fixperm -G '/cygdrive/c/Program Files/arduino'		# as Administrator
+		[icacls arduino /grant:r $LOGINSERVER\\$USERNAME:(OI)(CI)F]
 	ed=./PKG/EDTracker/arduino/EDTracker2_ArduinoHardware-master/edtracker
 	cp -a "$ed" '/cygdrive/c/Program Files/arduino/hardware'

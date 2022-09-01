@@ -57,11 +57,8 @@ class LotroWin {
 	; to the constructor.
 	title	:= ""		; The window title
 
-	; Windowed: 1280x720
-	width	:= 1280		; width
-	height	:= 720		; height
-	x		:= 0		; x,y position (top-left-based)
-	y		:= 0		; 
+	; Window position: default to 1280x720
+	winpos := { width: 1280, 	height: 720,	x:0,	y:0 }
 
 	fellows	:= false	; array of window titles of fellows (in order)
 	skills	:= false	; array of skill key strings for this window
@@ -86,6 +83,7 @@ class LotroWin {
 	; Internal instance variables
 	; State
 	_following		:= false	; the object being followed
+	_commander		:= false	; the object who is the commander
 	_fellows		:= false	; array of LotroWins corresponding to fellows
 	_selected		:= false	; currently selected fellow (a LotroWin object)
 	_moving			:= false	; true if this window is "fellow_moving"
@@ -153,22 +151,24 @@ class LotroWin {
 	; Class method to layout all windows in windowed mode.
 	{
 		global WinBorderX, WinBorderY
+		global LotroLayout_w, LotroLayout_wbg
+		cmd := "/ui layout load "
 		active := LotroWin.Active
 		for k, w in LotroWin.Windows {
 			title := w.title
 			WinGetPos, x, y, width, height, %title%
 			Dbg("BEFORE: {}: {}x{} @ {},{}", w.title, width, height, x, y )
-			x := w.x
-			y := w.y
-			width := w.width + WinBorderX
-			height := w.height + WinBorderY
+			x := w.winpos.x
+			y := w.winpos.y
+			width := w.winpos.width + WinBorderX
+			height := w.winpos.height + WinBorderY
 			MoveWin( w.title, x, y, width, height )
 			WinGetPos, x, y, width, height, %title%
 			Dbg("AFTER:  {}: {}x{} @ {},{}", w.title, width, height, x, y )
 			if ( w.title == active.title ) {
-				SendChat("", "/ui layout load w{Enter}")
+				SendChat("", cmd . LotroLayout_w . "{Enter}")
 			} else {
-				SendChat(w.title, "/ui layout load wbg{Enter}")
+				SendChat(w.title, cmd . LotroLayout_wbg . "{Enter}")
 			}
 		}
 		return
@@ -179,13 +179,15 @@ class LotroWin {
 	; Class method to layout all windows with Active in fullscreen
 	{
 		global FullScreen
+		global LotroLayout_f, LotroLayout_wbg
+		cmd := "/ui layout load "
 		active := LotroWin.Active
 		MoveWin( "A", 0, 0, FullScreen.width, FullScreen.height )
 		for k, w in LotroWin.Windows {
 			if ( w.title == active.title ) {
-				SendChat("", "/ui layout load f{Enter}")
+				SendChat("", cmd . LotroLayout_f . "{Enter}")
 			} else {
-				SendChat(w.title, "/ui layout load wbg{Enter}")
+				SendChat(w.title, cmd . LotroLayout_wbg . "{Enter}")
 			}
 		}
 		return
@@ -220,71 +222,78 @@ class LotroWin {
 	}
 
 	;========================================
-	follow_on_all(on:=true, delay:=-1)
+	follow_me_all(on:=true, delay:=-1)
 	; Turn following on/off for all fellows.
 	; Delay is in milliseconds. If delay is not provided, use the default delay.
 	{
 		if ( delay < 0 ) {
 			delay := this.follow_delay
 		}
-
-		; Quickly change the state of all followers
-		; (in case another async send_follower() occurs before we're finished)
-		for k, win in this._fellows {
-			this._follow_on(win, on)
-			if ( on ){
+		if ( on ){
+			; on - Quickly change the state of all followers
+			; (in case another async follow occurs before we're finished)
+			target := this
+			for k, win in this._fellows {
 				Dbg("{}:  {} quick-starts following.", this.title, win.title)
-				win._following := this
-			} else {
-				Dbg("{}:  {} quick-stops following.", this.title, win.title)
-				win._following := false
+				win._following := target
+				win._commander := this
+				target := win		; daisy-chain followers
 			}
-		}
-
-		; then send the following keys after requisite delays
-		for k, win in this._fellows {
-			if ( delay > 0 ) {
-				Dbg("{}: Sleeping {} ms for {}"
-				, this.title, delay, win.title )
-				Sleep(delay)
+			; then send the following keys after requisite delays
+			target := this
+			for k, win in this._fellows {
+				if ( delay > 0 ) {
+					Dbg("{}: Sleeping {} ms for {}"
+					, this.title, delay, win.title )
+					Sleep(delay)
+				}
+				win.follow(target)
+				target := win		; daisy-chain followers
 			}
-			this._follow_on(win, on)
+		} else {
+			; off -  stop following immediately
+			for k, win in this._fellows {
+				win.follow(false)
+				win._commander := false
+			}
 		}
 	}
 
 	;========================================
-	follow_on(on:=true)
-	; Turn following on/off for the currently selected fellow.
+	follow_me(on:=true)
+	; Tell the currently selected fellow to follow me (on=true) or stop (false)
 	{
 		if (this._selected) {
-			this._follow_on(this._selected, on)
+			if ( on ){
+				this._selected.follow(this)
+			} else {
+				this._selected.follow(false)
+			}
 		}
 	}
 
 	;========================================
-	_follow_on(fellow, on:=true)
-	; Turn following on/off for fellow.
+	follow(leader:=false)
+	; Follow leader (or stop following if it is false).
 	{
-		if ( fellow && fellow != this ){
-			if (on) {
-				; Tell fellow to target self
-				str := fellow.target_str(this)
-				; and follow
-				str .= fellow.bindings.follow
-				Dbg("{}: Following ON:  {} -> {}", this.title, fellow.title, this.title)
-				SendWin(fellow.title, str)
-				fellow._following := this
+		if ( leader ) {
+			if ( leader == this ){
+				Dbg("{}: INTERNAL: Can't follow self!", this.title)
 			} else {
-				; off; blip forward
-				str := fellow.bindings.forward
-				Dbg("{}: Following OFF: {}", this.title, fellow.title)
-				SendWin(fellow.title, str)
-				fellow._following := false
+				; Target leader
+				str := this.target_str(leader)
+				; and follow
+				str .= this.bindings.follow
+				Dbg("{}: Following {}", this.title, leader.title)
+				SendWin(this.title, str)
+				this._following := leader
 			}
-		} else if ( fellow ) {
-			Dbg("{}: Can't follow self!", this.title)
 		} else {
-			Dbg("{}: INTERNAL: _follow_on: fellow is NULL", this.title)
+			; turn following off; blip forward
+			str := this.bindings.forward
+			Dbg("{}: Following OFF", this.title )
+			SendWin(this.title, str)
+			this._following := false
 		}
 	}
 
@@ -304,7 +313,7 @@ class LotroWin {
 		}
 		SendWin(this.title, keystr)
 		for k, win in LotroWin.Windows {
-			if ( win._following == this ) {
+			if ( win._commander == this ) {
 				; sleep first
 				if ( delay > 0 ) {
 					Dbg("{}: Sleeping {} ms", this.title, delay )
@@ -435,11 +444,14 @@ class LotroWin {
 	{
 		;Dump(this)
 		Dbg( "  title : ""{}"":", this.title )
+		wpos := this.winpos
 		Dbg( "      {:-15s} : {},{}  {},{}", "w,h  x,y"
-			,this.width, this.height, this.x, this.y )
+			,wpos.width, wpos.height, wpos.x, wpos.y )
 		Dbg( "      {:-15s} : {}", "follow_delay", this.follow_delay)
 		Dbg( "      {:-15s} : {} ", "_following"
 			, this._following ? this._following.title : "false" )
+		Dbg( "      {:-15s} : {} ", "_commander"
+			, this._commander ? this._commander.title : "false" )
 		Dbg( "      {:-15s} : {} ", "_selected"
 			, this._selected ? this._selected.title : "false" )
 		Dbg( "      {:-15s} : {} ", "_selected"

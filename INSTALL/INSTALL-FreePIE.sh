@@ -24,4 +24,4 @@ $EXEC rm -rf "$INSTALL_DIR"
 $EXEC cp -a FreePIE "$INSTALL_DIR"
 
 # Create the symlinks
-./mklinks.sh "$INSTALL_DIR"
+./mklinks.sh -vFS -B "$INSTALL_DIR"
