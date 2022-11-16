@@ -34,7 +34,7 @@ DbgStartTime := A_TickCount
 
 ;=======================================
 Dbg(fmt, args*)
-; Format and print fmt to stdout with a newline.
+; Format and print fmt to stdout with a newline and timestamp.
 {
 	global DbgTimestamp, DbgStartTime
 	if ( DbgTimestamp ) {
@@ -45,8 +45,15 @@ Dbg(fmt, args*)
 }
 
 ;=======================================
+Dbgnt(fmt, args*)
+; Format and print fmt to stdout with a newline and no timestamp.
+{
+	Dbgn(fmt . "`n", args*)
+}
+
+;=======================================
 Dbgn(fmt, args*)
-; Format and print fmt to stdout with no newline.
+; Format and print fmt to stdout with no newline or timestamp.
 {
 	str := Format(fmt, args*)
 	FileAppend %str%, *
@@ -90,6 +97,28 @@ IsArray(var)
 	return true
 }
 
+;=======================================
+ExpandHotKey(str)
+; Expands str into a string that can be used in SendWin().
+; str is a value of A_ThisHotKey.
+{
+	base := ""
+	mods := ""
+	i := 1
+	while ( i <= StrLen(str) ) {
+		c := SubStr(str,i,1)
+		if ( c == "!" || c == "#" || c == "^" || c == "+" ) {
+			; collect modifiers
+			mods .= c
+		} else if ( c != "$" && c != "*" && c != "~" ) {
+			; collect base key name (skip/ignore meta chars $ * ~)
+			base .= c
+		}
+		i++
+	}
+	return mods . "{" . base . "}"
+	;return ExpandKeys(mods . "{" . base . "}")
+}
 
 ;=======================================
 ExpandKeys(str)

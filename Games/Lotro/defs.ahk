@@ -38,6 +38,7 @@ default:
 
 Dbg( "AutoHotKey LotRO ({}) starting on host {}", LotroMode, Hostname )
 
+; Can't #include a string or variable...
 switch LotroMode {
 case "DuoAH":
 	#Include Games/Lotro/defs-DuoAH.ahk
@@ -45,12 +46,6 @@ case "DuoAA":
 	#Include Games/Lotro/defs-DuoAA.ahk
 case "Trio":
 	#Include Games/Lotro/defs-Trio.ahk
-case "PartyDuo":
-	#Include Games/Lotro/defs-PartyDuo.ahk
-case "PartyDuoTH":
-	#Include Games/Lotro/defs-PartyDuoTH.ahk
-case "PartyTrio":
-	#Include Games/Lotro/defs-PartyTrio.ahk
 default:
 	Dbg("AutoHotKey LotRO: Unknown or Missing Lotro/MODE: " + LotroMode )
 }

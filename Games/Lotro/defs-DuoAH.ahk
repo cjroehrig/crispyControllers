@@ -1,44 +1,55 @@
-; Lotro definitions for 2-boxing (ASSIST/HEAL)
+; Lotro definitions for 2-boxing (DPS/HEAL)
 
 ;===============================================================================
 ; Window (and fellowship) definitions
 
-; fellows: array of titles of (possible) fellow windows in fellowship order.
-; skills: array of skill keys to be controlled by other fellows.
-;    ^Ctrl == target;   +Shift == assist  F1-F6 is fellow member (F1=self)
+; fellows: array of titles of fellow windows in fellowship order.
+; skilltarget:  array of targets for each remote skill (bindings.skills)
+;			-2		use default target
+;			-1		No target: don't change target/assist
+;			0		self
+;			1-N		target/assist that fellowship member
+; skillassist:  array of bool for each remote skill.  
+;			0		target the skilltarget before firing the skill
+;			1		assist the skilltarget before firing the skill
+; defaulttarget:  as defined in skilltarget but can be changed on the fly
+; defaultfellow:  the default recipient of all the remote skills
+;===============================================================================
 ;
+;	# 			self		N=1			N=2
+;	# window	F1			F2			F3
+;	DPS			DPS			HEAL
+;	HEAL		HEAL		DPS	
 
-; ASSIST
-new LotroWin( {title: "LotRO ASSIST"		
+; DPS
+new LotroWin( {title: "LotRO DPS"		
 		,winpos: LotroWinPos_botleft
 		,bindings: KK
 		,fellows:["LotRO HEAL"]
-		,select: 1			; first fellow
-		; ASSIST first fellow (Shift F2)
-		,skills:[	 "+{F2}{F1}"
-					,"+{F2}{F2}"
-					,"+{F2}{F3}"
-					,"+{F2}{F4}"
-					,"+{F2}{F5}"
-					,"+{F2}{F6}" ]})
+		,skilltarget:[ -2, -2, -2, -2, -2, -2 ]		; -1=none; -2=defaulttarget
+		,skillassist:[  1,  1,  1,  1,  1,  1 ]		; Assist
+		,defaulttarget: 	1						; Heal
+		,defaultfellow: 	1						; Heal
+		,_:0})
 
 ; HEAL
 new LotroWin( {title: "LotRO HEAL"
 		,winpos: LotroWinPos_topright
 		,bindings: KK
-		,fellows:["LotRO ASSIST"]
-		,select: 1			; first fellow
-		; HEAL: Target first fellow (Ctrl F2)
-		,skills:[	 "^{F2}{F1}"
-					,"^{F2}{F2}"
-					,"^{F2}{F3}"
-					,"^{F2}{F4}"
-					,"^{F1}{F5}"				; F1: SELF heal
-					,"^{F2}{F6}" ]})
+		,fellows:["LotRO DPS"]
+		,skilltarget:[ -2, -2, -2, -2, -2, -2 ]		; -1=none; -2=defaulttarget
+		,skillassist:[  0,  0,  0,  0,  0,  0 ]		; Target
+		,defaulttarget: 	1						; DPS
+		,defaultfellow: 	1						; DPS
+		,_:0})
 
 ; INACTIVE
 new LotroWin( {title: LotroInactiveWinTitle
 		,winpos: LotroWinPos_topleft
 		,bindings: KK
 		,fellows:false
-		,skills:false })
+		,skilltarget:false
+		,skillassist:false
+		,defaulttarget:false
+		,defaultfellow:false
+		,_:0})

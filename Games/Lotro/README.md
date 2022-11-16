@@ -1,9 +1,9 @@
-# LotRO aniso-boxing crispyControllers/AutoHotKey configuration
+# LotRO multi-boxing crispyControllers/AutoHotKey configuration
 
 ## Overview
-This is a set of AutoHotKey scripts for aniso-boxing in LotRO with different classes.  (Multi-boxing with all the same class is "iso-boxing";  Multi-boxing with different classes and roles is "aniso-boxing").  It requires the crispyControllers framework.
+This is a set of AutoHotKey scripts for multi-boxing in LotRO with different classes.  It requires the crispyControllers framework.
 
-It lets you play immersively from within one full-screen window while controlling (in a limited fashion) another toon/class in a background window without breaking immersion by switching windows, etc.
+It lets you play from within one full-screen window while controlling (in a limited fashion) another toon/class in a background window without breaking immersion by switching windows, etc.
 
 It is symmetrical:  you can switch windows at any time to any of your other characters and control the others.
 
@@ -18,17 +18,16 @@ File					| Description
 ----					| -----------
 mappings.ahk			| The AutoHotKey key bindings and actions.  These are the keybindings that are intercepted and used to control the other window(s).
 defs.ahk				| A wrapper to read the MODE file which tells which defs-*.ahk file to read.
-LotroWin.ahk			| The LotroWin class which contains the logic for operating a single LotRO window/character.
+LotroWin.ahk			| The LotroWin class which contains the logic for operating LotRO windows/characters.
 bindingdef.ahk			| Key binding definitions in a dictionary (KK). These are the LotRO in-game keybindings used by LotroWin to control a window.
-MODE					| a single word: Duo/Trio/PartyDuo/PartyTrio.
+MODE					| a single word: DuoAH, DuoAA or Trio
 ### Setup definitions
 
 File					| Description
 ----					| -----------
-defs-Duo.ahk			| A duoboxed party of 2 (dps + heal).
-defs-PartyDuo.ahk		| Same as duo but within a larger fellowship of players (with different assist targets).
+defs-DuoAH.ahk			| A duoboxed party of 2 (dps + heal).
+defs-DuoAA.ahk			| A duoboxed party of 2 (dps + dps) [both are assists]
 defs-Trio.ahk			| A trioboxed party of 3 (dps + heal + tank).
-defs-PartyTrio.ahk		| Same as trio but within a larger fellowship of players (with different assist targets).
 
 ### Library files
 File					| Description
@@ -41,7 +40,7 @@ Lib/ahk/util.ahk		| Utility functions.
 1.	Install crispyControllers and AutoHotKey:  
 	https://github.com/cjroehrig/crispyControllers
 
-2.  Edit `mappings.ahk` and `bindingdef.ahk` to use your preferred key bindings.   NB: The examples here are set up to use ESDF instead of WASD.
+2.  Edit `mappings.ahk` and `bindingdef.ahk` to use your preferred key bindings, and `defs.ahk` with your preferred window sizes and resolutions.  NB: The examples here are set up to use ESDF instead of WASD.
 
 	The `mappings.ahk` uses standard AutoHotKey mappings:  
 	https://www.autohotkey.com/docs/Hotkeys.htm
@@ -50,9 +49,9 @@ Lib/ahk/util.ahk		| Utility functions.
 	https://www.autohotkey.com/docs/commands/Send.htm  
 	https://www.autohotkey.com/docs/KeyList.htm  
 
-3.	For each toon, set up a dedicated ActionBar with 6-slots with its own key bindings. These are the skills that will be controlled by your other windows.  Note that `F1-F6` are intercepted by mappings.ahk and sent to other windows;  this lets you assign `F1-F6` LotRO key bindings to control this ActionBar (they can only be triggered when the window is in the background).
+3.	For each toon, set up a dedicated ActionBar with slots for remote skills and assigned hotkeys. These are the skills that will be controlled by your other windows.  The default is `F1-F6`.  Those hotkeys are intercepted by mappings.ahk and sent to other windows;  this lets you assign `F1-F6` LotRO key bindings to control this ActionBar (they can only be triggered when the window is in the background).
 
-4.  Edit your defs file (start with defs-Duo.ahk) to define each window and its skills key bindings.  There should be a LotroWin for each multi-boxed character.  The skills array defines what happens when your controlling character sends the intercepted actions (`F1-F6`) to this window and should be LotRO key bindings as defined for that toon.   In particular, you need to define the order of fellowship members and adjust which fellowship member is targetted or assisted by each skill.   You can make up your own `def-*.ahk` names and refer to them in the `MODE` file (update defs.ahk accordingly).
+4.  Edit your defs file (start with defs-DuoAH.ahk) to define each window and the skilltargets (see the defs-Trio.ahk for example) for each of your skills, and whether to use Target or Assist (skillassist) for each skill.  There should be a LotroWin for each multi-boxed character.
 
 5.	Add Lotro to the crispyControllers `main.ahk`, update the `MODE` file according to which mode you will be playing and run AutoHotKey `main.ahk`.
 
@@ -60,19 +59,20 @@ Lib/ahk/util.ahk		| Utility functions.
 
 7.	Party up so that each window has the fellowship members in the correct order.  This may be tricky for larger parties and you may need to redefine your defs to make it possible.
 
-8.	SELECT your background toon, turn FOLLOW on, and try out the various FOLLOW commands.
+8.	SELECT your background toon, turn FOLLOW on, and try out the various FOLLOW commands.  Run autohotkey in a terminal window to get lots of diagnostic info about what is happening.
+
 
 
 ## NOTES AND TIPS
 
-To debug under Cygwin:
+To debug under a Cygwin terminal:
 ```
 	ln -s /cygdrive/c/Program Files/AutoHotkey/AutoHotkey.exe ~/bin/ahk
-	ahk main.ahk | cat			# stdout needs some coaxing...
+	ahk main.ahk
 	# use the AutoHotkey Tray icon to exit
 ```
 
-Run as Full-Screen (Windowed) instead of Full-screen to make
+Run LotRO as Full-Screen (Windowed) instead of Full-screen to make
 window-switching faster.
 
 Save your UI (`/ui layout save <file>`) as:

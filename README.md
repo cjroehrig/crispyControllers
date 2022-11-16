@@ -132,6 +132,12 @@ version.
 	and drag the EDTrackerUI404 folder to:
 	C:/$PF/EDTrackerUI
 
+- Settings: 
+	- Yaw, Pitch scaling to +/- 1.00 to get correct orientation
+	- Smoothing: 0
+	- Response Mode: Linear
+	
+
 ### arduino
 - download the .ZIP (non-admin install) version to PKG/EDTracker
 	open the arduino-$VER-windows.zip file and drag the contained folder to:
@@ -142,3 +148,4 @@ version.
 		[icacls arduino /grant:r $LOGINSERVER\\$USERNAME:(OI)(CI)F]
 	ed=./PKG/EDTracker/arduino/EDTracker2_ArduinoHardware-master/edtracker
 	cp -a "$ed" '/cygdrive/c/Program Files/arduino/hardware'
+

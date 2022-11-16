@@ -366,8 +366,11 @@ filters = SimFilters()
 # system
 class SimSystem:
     threadExecutionInterval = 1
-    #def setThreadTiming(x): pass
+    def setThreadTiming(self,x): pass
+class TimingTypes:
+    HighresSystemTimer = 1
 system = SimSystem()
+
 
 
 #==============================================================================

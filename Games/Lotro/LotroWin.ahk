@@ -49,7 +49,8 @@ class LotroWin {
 
 	;==========================================================================
 	; Class properties
-	static Windows := []		; the list of all defined window objects
+	static Windows := []			; the list of all defined window objects
+	static _selectstate	:= false	; Array of fellow select states
 
 	;==========================================================================
 	; Instance Properties
@@ -60,12 +61,20 @@ class LotroWin {
 	; Window position: default to 1280x720
 	winpos := { width: 1280, 	height: 720,	x:0,	y:0 }
 
-	fellows	:= false	; array of window titles of fellows (in order)
-	skills	:= false	; array of skill key strings for this window
-	select	:= false	; default fellow selection (at startup)
+	fellows	:= false		; array of window titles of fellows (in order)
+	skills	:= false		; array of skill key strings for this window[DEL]
 
-	; default delay before sending keystrokes to following windows (ms)
-	follow_delay := 1000
+	; These 2 are arrays of the same length as bindings.skills:
+	skilltarget := false	; array of remote skill target fellow (0-5)
+							; 0 == self
+							; -1 == none; do not change target
+							; -2 == use defaulttarget
+	skillassist := false	; array of bool; true == assist instead of target
+
+	defaulttarget := -1		; default fellow target for remote skills (0-5)
+
+	defaultfellow := false	; default fellow for hotkey actions from this win
+							; 1 == first fellow
 
 	; dictionary of key bindings (as an example of required bindings)
 	bindings := 	{_:0
@@ -76,6 +85,9 @@ class LotroWin {
 							,"^{F4}", "^{F5}", "^{F6}" ]
 		,assist 		: [  "+{F1}", "+{F2}", "+{F3}"
 							,"+{F4}", "+{F5}", "+{F6}" ]
+		; keys to fire remote skills for this window 1-N 
+		,skills 		: [  "{F1}", "{F2}", "{F3}"
+							,"{F4}", "{F5}", "{F6}" ]
 		,_:0}
 
 
@@ -83,9 +95,9 @@ class LotroWin {
 	; Internal instance variables
 	; State
 	_following		:= false	; the object being followed
+								; (distinct from commander when daisy-chained)
 	_commander		:= false	; the object who is the commander
 	_fellows		:= false	; array of LotroWins corresponding to fellows
-	_selected		:= false	; currently selected fellow (a LotroWin object)
 	_moving			:= false	; true if this window is "fellow_moving"
 
 
@@ -109,6 +121,7 @@ class LotroWin {
 	; Fills in each win._fellows with an array of LotroWin objects
 	; corresponding to its fellows array.
 	{
+		LotroWin._selectstate := []
 		for k, win in LotroWin.Windows {
 			; set up array of fellow object
 			if (win.fellows) {
@@ -118,18 +131,34 @@ class LotroWin {
 					if ( f ) {
 						win._fellows.Push(f)
 					} else {
-						Dbg("WARNING: finalize ({}): no fellow window "
+						Dbg("WARNING: finalize [{}]: no fellow window "
 								. "named '{}' found.", win.title, title )
 						win._fellows.Push(false)
 					}
 				}
 			}
+			LotroWin._selectstate.Push(false)
 		}
-		; set up default fellow selection
-		for k, win in LotroWin.Windows {
-			if (win.select) {
-				win.fellow_select(win.select)
+	}
+
+	;========================================
+	SetSelect(n, val)
+	; Class method to set the fellow selectstate(n) to 'val' (true/false)
+	{
+		if ( LotroWin._selectstate 
+					&& n > 0 
+					&& n <= LotroWin._selectstate.Length() ){
+			if ( val ) {
+				if ( ! LotroWin._selectstate[n] ) {	; avoid auto-repeat
+					Dbg("SELECTSTATE[{}]  ON", n)
+					LotroWin._selectstate[n] := true
+				}
+			} else {
+				Dbg("SELECTSTATE[{}]  OFF", n)
+					LotroWin._selectstate[n] := false
 			}
+		} else {
+			Dbg( "SetSelect: n={} is out-of-bounds!", n )
 		}
 	}
 
@@ -142,7 +171,7 @@ class LotroWin {
 				return win
 			}
 		}
-		Dbg("WARNING: no such fellow window: {}", title )
+		Dbg("WARNING: no such fellow window: [{}]", title )
 		return false
 	}
 
@@ -157,14 +186,14 @@ class LotroWin {
 		for k, w in LotroWin.Windows {
 			title := w.title
 			WinGetPos, x, y, width, height, %title%
-			Dbg("BEFORE: {}: {}x{} @ {},{}", w.title, width, height, x, y )
+			Dbg("BEFORE: [{}]: {}x{} @ {},{}", w.title, width, height, x, y )
 			x := w.winpos.x
 			y := w.winpos.y
 			width := w.winpos.width + WinBorderX
 			height := w.winpos.height + WinBorderY
 			MoveWin( w.title, x, y, width, height )
 			WinGetPos, x, y, width, height, %title%
-			Dbg("AFTER:  {}: {}x{} @ {},{}", w.title, width, height, x, y )
+			Dbg("AFTER:  [{}]: {}x{} @ {},{}", w.title, width, height, x, y )
 			if ( w.title == active.title ) {
 				SendChat("", cmd . LotroLayout_w . "{Enter}")
 			} else {
@@ -199,6 +228,7 @@ class LotroWin {
 	{
 		Dbg("=================================================")
 		Dbg("DUMP: LotroWin.Windows (Length={}):", LotroWin.Windows.Length())
+		Dbgnt( "  {:-15s} : {} ", "_selectstate" , Repr(LotroWin._selectstate))
 		for k, win in LotroWin.Windows {
 			win.dump()
 		}
@@ -222,76 +252,75 @@ class LotroWin {
 	}
 
 	;========================================
-	follow_me_all(on:=true, delay:=-1)
-	; Turn following on/off for all fellows.
-	; Delay is in milliseconds. If delay is not provided, use the default delay.
+	follow_me(on:=true, delay:=0)
+	; Tell the currently selected fellow to follow me (on=true) or stop (false)
+	; or if none are selected, tell all to fellows to follow me.
+	; Delay is in milliseconds.
 	{
-		if ( delay < 0 ) {
-			delay := this.follow_delay
-		}
-		if ( on ){
-			; on - Quickly change the state of all followers
-			; (in case another async follow occurs before we're finished)
-			target := this
-			for k, win in this._fellows {
-				Dbg("{}:  {} quick-starts following.", this.title, win.title)
-				win._following := target
-				win._commander := this
-				target := win		; daisy-chain followers
-			}
-			; then send the following keys after requisite delays
-			target := this
-			for k, win in this._fellows {
-				if ( delay > 0 ) {
-					Dbg("{}: Sleeping {} ms for {}"
-					, this.title, delay, win.title )
-					Sleep(delay)
-				}
-				win.follow(target)
-				target := win		; daisy-chain followers
+		selfellow := this._get_selfellow()
+		if ( selfellow ) {
+			if ( on ){
+				selfellow._follow(this)
+				selfellow._commander := this
+			} else {
+				selfellow._follow(false)
+				selfellow._commander := false
 			}
 		} else {
-			; off -  stop following immediately
-			for k, win in this._fellows {
-				win.follow(false)
-				win._commander := false
-			}
-		}
-	}
-
-	;========================================
-	follow_me(on:=true)
-	; Tell the currently selected fellow to follow me (on=true) or stop (false)
-	{
-		if (this._selected) {
+			; no selected fellow: everyone follows
 			if ( on ){
-				this._selected.follow(this)
+				; on - Quickly change the state of all followers
+				; (in case another async follow occurs before we're finished)
+				target := this
+				for k, win in this._fellows {
+					Dbg("[{}]:  [{}] quick-starts following."
+						, this.title, win.title)
+					win._following := target
+					win._commander := this
+					target := win		; daisy-chain followers
+				}
+				; then send the following keys after requisite delays
+				target := this
+				for k, win in this._fellows {
+					if ( delay > 0 ) {
+						Dbg("[{}]: Sleeping {} ms for [{}]"
+						, this.title, delay, win.title )
+						Sleep(delay)
+					}
+					win._follow(target)
+					target := win		; daisy-chain followers
+				}
 			} else {
-				this._selected.follow(false)
+				; off -  stop following immediately
+				for k, win in this._fellows {
+					win._follow(false)
+					win._commander := false
+				}
 			}
 		}
 	}
 
 	;========================================
-	follow(leader:=false)
+	_follow(leader:=false)
 	; Follow leader (or stop following if it is false).
+	; NB: this does not change _commander; use follow_me*() for bindings
 	{
 		if ( leader ) {
 			if ( leader == this ){
-				Dbg("{}: INTERNAL: Can't follow self!", this.title)
+				Dbg("[{}]: INTERNAL: Can't follow self!", this.title)
 			} else {
 				; Target leader
 				str := this.target_str(leader)
 				; and follow
 				str .= this.bindings.follow
-				Dbg("{}: Following {}", this.title, leader.title)
+				Dbg("[{}]: Following [{}]", this.title, leader.title)
 				SendWin(this.title, str)
 				this._following := leader
 			}
 		} else {
 			; turn following off; blip forward
 			str := this.bindings.forward
-			Dbg("{}: Following OFF", this.title )
+			Dbg("[{}]: Following OFF", this.title )
 			SendWin(this.title, str)
 			this._following := false
 		}
@@ -300,73 +329,215 @@ class LotroWin {
 
 
 	;========================================
-	send_following(keystr, delay:=-1, nudge:=0)
-	; Send keystr to self and any following windows (after a delay) 
+	follower_hotkey(hotkeystr, delay:=0, nudge:=0)
+	; If a fellow is selected, send hotkeystr to it; otherwise:
+	; send hotkeystr to self and any following windows (after a possible delay) 
 	; and continue following.
-	; Delay is in milliseconds. If delay is not provided, use the default delay.
-	; If nudge is 1, then move forward a bit after keystr, before refollowing
+	; Delay is in milliseconds.
+	; If nudge is 1, then move forward a bit after hotkeystr, before refollowing
 	; (necessary for toggling walk/run on followers).
 	; If nudge is 2, then don't refollow (avoids warsteed dismount bug)
+	; NB: hotkeystr is a hotkey string a'la A_ThisHotkey and is expanded
 	{
-		if ( delay < 0 ) {
-			delay := this.follow_delay
+		keystr := ExpandHotKey(hotkeystr)
+
+		selfellow := this._get_selfellow()
+		if ( selfellow ) {
+			SendWin(selfellow.title, keystr)
+			return
 		}
-		SendWin(this.title, keystr)
+
+		; no selfellow -- send to me and followers
+		SendWin(this.title, keystr)		; send to me
 		for k, win in LotroWin.Windows {
 			if ( win._commander == this ) {
 				; sleep first
 				if ( delay > 0 ) {
-					Dbg("{}: Sleeping {} ms", this.title, delay )
+					Dbg("[{}]: Sleeping {} ms", this.title, delay )
 					Sleep(delay)
 				}
-				; follower:  target me, keystr, re-follow
+				; target me and send keystr
 				str := win.target_str(this)
 				str .= keystr
 				if ( nudge == 1) {
 					str .= win.bindings.forward
 				}
-				if ( nudge != 2 ){
-					; don't follow after a warsteed dismount
-					; (triggers a very odd jerky movement bug).
-					str .= win.bindings.follow
-				}
 				SendWin(win.title, str)
+
+				; re-follow
+				if ( win._following ) {
+					if ( nudge != 2 ){
+						; don't follow after a warsteed dismount
+						; (triggers a very odd jerky movement bug).
+						str := win.target_str(win._following)
+						str .= win.bindings.follow
+						SendWin(win.title, str)
+					}
+				}
 			}
 		}
 	}
 
 	;========================================
-	fellow_select(n)
-	; Select fellow n as the selected fellow.
-	; n = 1 ==> first fellow (after self)
+	_get_selfellow()
+	; Return the currently selected fellow based on the KeyState
+	; value in _selectstate.
+	; i.e. if that key is physically held down, then that fellow is selected.
+	; The first match is returned, or 'false' if none is selected.
+	{
+		selfellow := false
+		; NB: GetKeyState() is not reliable (doesn't release), so we
+		; need to manage the state with explicit up/down hotkeys.
+;		for i, key in this.bindings.fellowselect {
+;			if (GetKeyState(key, "p")) {
+		for i, val in LotroWin._selectstate {
+			if ( val ) {
+				if ( i > 0 && i <= this._fellows.Length() ){
+					selfellow := this._fellows[i]
+					Dbg("[{}]: SELFELLOW: [{}]", this.title, selfellow.title)
+				}
+			}
+		}
+
+		return selfellow
+	}
+
+	;========================================
+	_get_defaultfellow()
+	; Return the default fellow defined for this window.
+	{
+		n := this.defaultfellow
+		if ( ! n ) {
+			return false
+		}
+		if ( this._fellows && n > 0 && n <= this._fellows.Length() ){
+			selfellow := this._fellows[n]
+			Dbg("[{}]: SELFELLOW[default]: [{}]", this.title, selfellow.title)
+		} else {
+			selfellow := false
+			Dbg("[{}]: SELFELLOW[default]: <void>", this.title )
+		}
+		return selfellow
+	}
+
+	;========================================
+	set_defaultfellow(n)
+	; Set the default fellow to n
 	{
 		if ( this._fellows && n > 0 && n <= this._fellows.Length() ){
-			this._selected := this._fellows[n]
-			Dbg("{}: SELECT: {}", this.title, this._selected.title)
+			selfellow := this._fellows[n]
+			this.defaultfellow := n
+			Dbg("[{}]: SET defaultfellow={} [{}]"
+				, this.title, n, selfellow.title )
 		} else {
-			this._selected := false
-			Dbg("{}: SELECT: <void>", this.title )
+			Dbg("[{}]: SET defaultfellow: INVALID: {}", this.title, n )
 		}
 	}
 
 	;========================================
-	fellow_skill(n)
-	; Send the selected fellow its skill n.
+	set_defaulttarget(n)
+	; Set the default target of the selected (or default) fellow to n.
 	{
-		fellow := this._selected
-		if ( fellow ) {
-			SendWin(fellow.title, fellow.skills[n])
+		selfellow := this._get_selfellow()
+		if ( ! selfellow ) {
+			selfellow := this._get_defaultfellow()
+			if ( ! selfellow ) {
+				return
+			}
 		}
+
+		selfellow.defaulttarget := n
+		if ( n > 0 && n <= selfellow.fellows.Length() ) {
+			Dbg("[{}]: SET defaulttarget={} [{}]"
+				, selfellow.title, n, selfellow.fellows[n] )
+		} else if ( n == 0 ){
+			Dbg("[{}]: SET defaulttarget={} <self>", selfellow.title, n)
+		} else {
+			Dbg("[{}]: SET defaulttarget={}", selfellow.title, n)
+		}
+
+		; Send selfellow a retarget:
+		if ( n+1 <= selfellow.bindings.target.Length() ){
+			SendWin(selfellow.title, selfellow.bindings.target[n+1])
+		}
+	}
+
+
+	;========================================
+	fellow_skill(n)
+	; Send the selected fellow its skill n (includes target/assist keystroke)
+	{
+		selfellow := this._get_selfellow()
+		if ( ! selfellow ) {
+			selfellow := this._get_defaultfellow()
+			if ( ! selfellow ) {
+				return
+			}
+		}
+
+		; range checks:
+		if ( n < 0 || n > selfellow.bindings.skills.Length() ) {
+			Dbg("ERROR: [{}]: has no bindings.skills[{}]", selfellow.title, n)
+			return
+		}
+		if ( n < 0 || n > selfellow.skilltarget.Length() ) {
+			Dbg("ERROR: [{}]: has no skilltarget[{}]", selfellow.title, n)
+			return
+		}
+		if ( n < 0 || n > selfellow.skillassist.Length() ) {
+			Dbg("ERROR: [{}]: has no skillassist[{}]", selfellow.title, n)
+			return
+		}
+
+		; construct the string
+		targ := selfellow.skilltarget[n]
+		dbgmsg := ""
+		if ( targ == -2 ){
+			; default target
+			targ := selfellow.defaulttarget
+			dbgmsg .= "[default]"
+		}
+		if ( targ >= 0 ) {
+			if ( selfellow.skillassist[n] ){
+				; assist fellow[targ]
+				str := selfellow.bindings.assist[targ+1]		; 1-offset
+				dbgmsg .= "Assist:["
+			} else {
+				; target fellow[targ]
+				str := selfellow.bindings.target[targ+1]		; 1-offset
+				dbgmsg .= "Target:["
+			}
+			if ( targ <= selfellow.fellows.Length() ) {
+				dbgmsg .= selfellow.fellows[targ]
+			} else {
+				dbgmsg .= targ		; another party member
+			}
+			dbgmsg .= "]"
+		} else {
+			str := ""		; no target
+			dbgmsg .= "<No target>"
+		}
+
+		; add the actual skill hotkey
+		str .= selfellow.bindings.skills[n]
+
+		Dbg("SKILL: [{}]: --> [{}]: skills[{}] with " . dbgmsg
+				,this.title, selfellow.title, n)
+		SendWin(selfellow.title, str)
 	}
 
 	;========================================
 	fellow_send(keystr)
-	; Send the selected fellow 'keystr'
+	; Send the selected fellow 'keystr' (a fully-expanded key string).
 	{
-		fellow := this._selected
-		if ( fellow ) {
-			SendWin(fellow.title, keystr)
+		selfellow := this._get_selfellow()
+		if ( ! selfellow ) {
+			selfellow := this._get_defaultfellow()
+			if ( ! selfellow ) {
+				return
+			}
 		}
+		SendWin(selfellow.title, keystr)
 	}
 
 	;========================================
@@ -374,21 +545,25 @@ class LotroWin {
 	; Start fellow movement
 	; XXX: lots of issues with Ctrl here
 	{
-		fellow := this._selected
-		if ( fellow ){
-			if ( ! fellow._moving ) {
-				ActivateWin(fellow.title)
-				FocusWin(fellow.title)
-				str := "{" . fellow.bindings.forward . " down}"
-				; XXX: Somehow Ctrl Down is being sent to the fellow...
-				; str .= "{Ctrl up}"
-				SendWin(fellow.title, str)
-				fellow._moving := true
-			} else {
-				; send more 
-				str := "{" . fellow.bindings.forward . " down}"
-				SendWin(fellow.title, str)
+		selfellow := this._get_selfellow()
+		if ( ! selfellow ) {
+			selfellow := this._get_defaultfellow()
+			if ( ! selfellow ) {
+				return
 			}
+		}
+		if ( ! selfellow._moving ) {
+			ActivateWin(selfellow.title)
+			FocusWin(selfellow.title)
+			str := "{" . selfellow.bindings.forward . " down}"
+			; XXX: Somehow Ctrl Down is being sent to the fellow...
+			; str .= "{Ctrl up}"
+			SendWin(selfellow.title, str)
+			selfellow._moving := true
+		} else {
+			; send more 
+			str := "{" . selfellow.bindings.forward . " down}"
+			SendWin(selfellow.title, str)
 		}
 	}
 
@@ -396,15 +571,19 @@ class LotroWin {
 	fellow_move_stop()
 	; End fellow movement
 	{
-		fellow := this._selected
-		if ( fellow ){
-			if ( fellow._moving ){
-				str := "{" . fellow.bindings.forward . " up}"
-				SendWin(fellow.title, str)
-				UnfocusWin(fellow.title)
-				ActivateWin(this.title)
-				fellow._moving := false
+		selfellow := this._get_selfellow()
+		if ( ! selfellow ) {
+			selfellow := this._get_defaultfellow()
+			if ( ! selfellow ) {
+				return
 			}
+		}
+		if ( selfellow._moving ){
+			str := "{" . selfellow.bindings.forward . " up}"
+			SendWin(selfellow.title, str)
+			UnfocusWin(selfellow.title)
+			ActivateWin(this.title)
+			selfellow._moving := false
 		}
 	}
 
@@ -430,7 +609,7 @@ class LotroWin {
 
 		; sanity check
 		if ( this._fellows[n] != fellow ){
-			Dbg("{}: INTERNAL: _select_str: _fellows[{}]='{}'"
+			Dbg("[{}]: INTERNAL: _select_str: _fellows[{}]='{}'"
 				. "object doesn't match object fellow='{}'"
 				, this.title, n, this._fellows[n].title, fellow.title)
 		}
@@ -442,25 +621,20 @@ class LotroWin {
 	dump()
 	; dump this instance's datastructures
 	{
-		;Dump(this)
-		Dbg( "  title : ""{}"":", this.title )
+		Dbg( "  title : [{}]:", this.title )
 		wpos := this.winpos
-		Dbg( "      {:-15s} : {},{}  {},{}", "w,h  x,y"
+		Dbgnt( "      {:-15s} : {},{}  {},{}", "w,h  x,y"
 			,wpos.width, wpos.height, wpos.x, wpos.y )
-		Dbg( "      {:-15s} : {}", "follow_delay", this.follow_delay)
-		Dbg( "      {:-15s} : {} ", "_following"
+		Dbgnt( "      {:-15s} : {} ", "_following"
 			, this._following ? this._following.title : "false" )
-		Dbg( "      {:-15s} : {} ", "_commander"
+		Dbgnt( "      {:-15s} : {} ", "_commander"
 			, this._commander ? this._commander.title : "false" )
-		Dbg( "      {:-15s} : {} ", "_selected"
-			, this._selected ? this._selected.title : "false" )
-		Dbg( "      {:-15s} : {} ", "_selected"
+		Dbgnt( "      {:-15s} : {} ", "_moving"
 			, this._moving ? "true" : "false" )
-		Dbg( "      {:-15s} : {} ", "bindings"
+		Dbgnt( "      {:-15s} : {} ", "bindings"
 			, this.bindings ? Repr(this.bindings) : "false" )
-		Dbg( "      {:-15s} : {} ", "skills", Repr(this.skills))
-		Dbg( "      {:-15s} : {} ", "fellows", Repr(this.fellows))
-		Dbgn("      {:-15s} : ", "_fellows")
+		Dbgnt( "      {:-15s} : {} ", "fellows", Repr(this.fellows))
+		Dbgn(  "      {:-15s} : ", "_fellows")
 		if ( this._fellows ) {
 			Dbgn("[")
 			first := true
@@ -472,9 +646,15 @@ class LotroWin {
 				}
 				Dbgn( """{}""", o.title )
 			}
-			Dbg("]")
+			Dbgnt("]")
+		Dbgnt( "      {:-15s} : {} ", "defaultfellow", this.defaultfellow )
+		Dbgnt( "      {:-15s} : {} ", "skills", Repr(this.skills))
+		Dbgnt( "      {:-15s} : {} ", "skilltarget", Repr(this.skilltarget))
+		Dbgnt( "      {:-15s} : {} ", "skillassist", Repr(this.skillassist))
+		Dbgnt( "      {:-15s} : {} ", "defaulttarget", this.defaulttarget)
 		} else {
-			Dbg("0")
+			Dbgnt("0")
 		}
 	}
+
 }

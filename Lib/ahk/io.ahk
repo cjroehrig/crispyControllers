@@ -113,7 +113,7 @@ RotateWinTitle(windows, init_strs)
 ActivateWin(wintitle)
 ; Activate and bring to foreground the window called wintitle.
 {
-	Dbg("ACTIVATE " . wintitle)
+	Dbg("ACTIVATE({})", wintitle)
 	;WinActivate, %wintitle%
 	WinGet, hWnd, ID, %wintitle%
 	DllCall("SetForegroundWindow", UInt, hWnd)
@@ -124,7 +124,7 @@ FocusWin(wintitle)
 ; Focus the window called wintitle.
 {
 	global FocusPreDelay
-	Dbg("FOCUS " . wintitle)
+	Dbg("FOCUS({})", wintitle)
 	;NB: don't use ControlFocus; it causes Lotro to go to
 	; foreground FPS and doesn't return to capped background FPS.
 	; Send a WM_ACTIVATE message instead.
@@ -143,7 +143,7 @@ UnfocusWin(wintitle)
 ; Relinquish focus on the window called wintitle.
 {
 	global FocusPostDelay
-	Dbg("UNFOCUS " . wintitle)
+	Dbg("UNFOCUS({})", wintitle)
 	if ( FocusPostDelay > 0 ) {
 		Sleep, %FocusPostDelay%
 	}
@@ -165,15 +165,15 @@ SendChat(wintitle, text)
 		WinGetActiveTitle, awin
 		if ( wintitle != awin ){
 			; Background window
-			Dbg("SENDCHAT({}) : {}", wintitle, text)
+			Dbg("SENDCHAT({}): {}", wintitle, text)
 			ControlFocus, ,%wintitle%
 			ControlSend, , %text%, %wintitle%
 		} else {
-			Dbg("SENDCHAT({}) : {}", "ACTIVE:".wintitle, text)
+			Dbg("SENDCHAT({}): {}", "ACTIVE:".wintitle, text)
 			Send, %text%
 		}
 	} else {
-		Dbg("SENDCHAT({}) : {}", "ACTIVE", text)
+		Dbg("SENDCHAT({}): {}", "ACTIVE", text)
 		Send, %text%
 	}
 	if ( SendDelay > 0 ) {
@@ -194,15 +194,15 @@ SendWin(wintitle, keys)
 		if ( wintitle != awin ){
 			; Background window
 			FocusWin(wintitle)
-			Dbg("SEND({}) : {}", wintitle, keys)
+			Dbg("SEND({}): {}", wintitle, keys)
 			ControlSend, , %keys%, %wintitle%
 			UnfocusWin(wintitle)
 		} else {
-			Dbg("SEND({}) : {}", "ACTIVE:".wintitle, keys)
+			Dbg("SEND({}): {}", "ACTIVE:".wintitle, keys)
 			Send, %keys%
 		}
 	} else {
-		Dbg("SEND({}) : {}", "ACTIVE", keys)
+		Dbg("SEND({}): {}", "ACTIVE", keys)
 		Send, %keys%
 	}
 	if ( SendDelay > 0 ) {

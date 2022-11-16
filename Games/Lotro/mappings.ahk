@@ -12,43 +12,59 @@
 
 ;==============================================================================
 ; FOLLOWING 
+; These functions have two modes of operation:
+;	1)  SELECTED mode - if a fellowselect modifier key is held down,
+;	they apply just to the selected fellow.
+;	2)	default mode: 
+;				follower_*		applies to self and all followers (refollow)
+;					NB: for each follower, the leader will be targetted 
+; 					before the hotkey is sent; the leader will be "refollowed"
+;					after sending the hotkey
+;				fellow_*		applies just to defaultfellow
+;								(as defined in the defs-* file)
 
-; FOLLOW ON
-+f::	LotroWin.Active.follow_me_all(true)				; all fellows
-!^f::	LotroWin.Active.follow_me(true)					; just selected
-; FOLLOW OFF
-+s::	LotroWin.Active.follow_me_all(false,0)			; all fellows
-!^s::	LotroWin.Active.follow_me(false)				; just selected
+; Turn following on/off (SELECTED or all fellows)
++f::	LotroWin.Active.follow_me(true, 1000)			; follow on
++s::	LotroWin.Active.follow_me(false)				; follow off
 
 
-; FOLLOWing keys -- sent to active window and all its followers
-; (after the default delay)
-Space::	LotroWin.Active.send_following("{Space}")		; jump
-^Tab::	LotroWin.Active.send_following("^{Tab}",0,1)	; walk/run
-c::		LotroWin.Active.send_following("c", 200)		; warsteed stop
-+z::	LotroWin.Active.send_following("+z")			; warsteed boost
+; Sent to SELECTED or self + all followers (1s delay)
+Space::					; jump
+		LotroWin.Active.follower_hotkey(A_ThisHotkey, 1000)
+		return
 
-; give a bit of extra time for followers to stop before mounting...
-+d::	LotroWin.Active.send_following("+d",1500,2)		; mount/unmount
++z::	LotroWin.Active.follower_hotkey(A_ThisHotkey)		; warsteed boost
+
+; These need special handling/nudging
+^Tab::	LotroWin.Active.follower_hotkey(A_ThisHotkey,0,1)	; walk/run [nudge]
+c::		LotroWin.Active.follower_hotkey(A_ThisHotkey, 200)	; warsteed stop
+; give a bit of extra time for followers to stop before mounting. [no-refollow]
+; no-refollow because of warsteed dismount bug
++d::	LotroWin.Active.follower_hotkey(A_ThisHotkey, 1500, 2)	; mount/unmount
+
 
 ; Outfits
-=::		LotroWin.Active.send_following("=")				; Outfit 1: Combat
-+=::	LotroWin.Active.send_following("+=")			; Outfit 2: Travel
-^=::	LotroWin.Active.send_following("^=")			; Outfit 3: Rain
-^+=::	LotroWin.Active.send_following("^+=")			; Outfit 4: Snow
-!=::	LotroWin.Active.send_following("!=")			; Outfit 5: Festival
-!+=::	LotroWin.Active.send_following("!+=")			; Outfit 6: Relax
-!^=::	LotroWin.Active.send_following("!^=")			; Outfit 7: 
+=::						; Outfit 1: Combat
++=::					; Outfit 2: Travel
+^=::					; Outfit 3: Rain
+^+=::					; Outfit 4: Snow
+!=::					; Outfit 5: Festival
+!+=::					; Outfit 6: Relax
+!^=::					; Outfit 7: 
+		LotroWin.Active.follower_hotkey(A_ThisHotkey)
+		return
+
+; Target and use nearest object (SELECTED or default select fellow)
+^`::	LotroWin.Active.fellow_send(KK.targetanduse)	; Ctrl-`
+
+; SELECTed fellow movement (when Ctrl is held)
+^e::	LotroWin.Active.fellow_move_start()		; Ctrl E
+^e Up::	LotroWin.Active.fellow_move_stop()		; Ctrl E up
 
 
-;==============================================================================
-; Fellow keys -- sent to the Active window's selected Fellow
-
-; Fellow SELECT: choose which fellow (1-5)
-NumpadDot::		LotroWin.Active.fellow_select(1)		; select first fellow
-Numpad0::		LotroWin.Active.fellow_select(2)		; select second fellow
-
-; Fellow Skills: sent to the SELECTed fellow
+; Fellow Skills: sent to the SELECTED fellow
+; NB: these will be intercepted within the current window, so you can only
+; use them for remote skills.
 F1::		LotroWin.Active.fellow_skill(1)			; skill 1
 F2::		LotroWin.Active.fellow_skill(2)			; skill 2
 F3::		LotroWin.Active.fellow_skill(3)			; skill 3
@@ -56,11 +72,25 @@ F4::		LotroWin.Active.fellow_skill(4)			; skill 4
 F5::		LotroWin.Active.fellow_skill(5)			; skill 5
 F6::		LotroWin.Active.fellow_skill(6)			; skill 6
 
-; SELECTed Fellow: Target and use nearest object
-^`::		LotroWin.Active.fellow_send(KK.targetanduse)	; Ctrl-`
 
-; SELECTed fellow movement (when Ctrl is held)
-^e::	LotroWin.Active.fellow_move_start()		; Ctrl E
-^e Up::		LotroWin.Active.fellow_move_stop()		; Ctrl E up
+; Fellow Select state
+NumpadDot::		LotroWin.SetSelect(1, true)
+NumpadDot Up::	LotroWin.SetSelect(1, false)
+Numpad0::		LotroWin.SetSelect(2, true)
+Numpad0 Up::	LotroWin.SetSelect(2, false)
+; Change default fellow [= Alt + fellowselect modifiers]
+!NumpadDot::	LotroWin.Active.set_defaultfellow(1)
+!Numpad0::		LotroWin.Active.set_defaultfellow(2)
+; Change default target (0-5) of default (or selected) fellow: 0=self
+!^1::			LotroWin.Active.set_defaulttarget(0)
+!^2::			LotroWin.Active.set_defaulttarget(1)
+!^3::			LotroWin.Active.set_defaulttarget(2)
+!^4::			LotroWin.Active.set_defaulttarget(3)
+!^5::			LotroWin.Active.set_defaulttarget(4)
+!^6::			LotroWin.Active.set_defaulttarget(5)
+
+
+; Debugging
+!p::			LotroWin.dumpAll()
 
 #IfWinActive

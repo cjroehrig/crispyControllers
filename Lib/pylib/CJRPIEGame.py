@@ -159,9 +159,14 @@ class CJRPIEGame (PIEGameClass):
         look.y.AddUpdater(look.y.tracker)
         look.trackerEnabled = True
 
-        # ardea's EDTracker uses the pre-made board which is upside-down :/
-        # if self.myhost == 'ardea': look.y.tracker.scale *= -1.0
-        if self.myhost == 'ardea': look.y.tracker.scale *= -1.0
+
+        # host-dependent scaling
+        if self.myhost == 'aquila':
+            look.x.tracker.scale *= 1080.0/1440.0
+            look.y.tracker.scale *= 1080.0/1440.0
+
+            # all my EDTracker boards/units are upside-down now:
+        look.y.tracker.scale *= -1.0        # inverted tracker board
 
         self.G.printf("CJR: %s: added tracker", look.name )
 
