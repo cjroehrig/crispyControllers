@@ -58,6 +58,16 @@ Dbgn(fmt, args*)
 	str := Format(fmt, args*)
 	FileAppend %str%, *
 }
+;=======================================
+IsPrefix(prefix, fullstr)
+; Returns true if fullstr begins with prefix; false otherwise
+{
+	if ( SubStr(fullstr, 1, StrLen(prefix))  == prefix ) {
+		return true
+	} else {
+		return false
+	}
+}
 
 ;=======================================
 Sleep(ms)
@@ -95,6 +105,16 @@ IsArray(var)
 		i++
 	} 
 	return true
+}
+
+;=======================================
+IsInteger(var)
+;  Returns true if var is a (decimal) integer
+{
+	if var is integer
+		return true
+	else
+		return false
 }
 
 ;=======================================
@@ -207,24 +227,48 @@ IndentStr(indent:=0)
 
 ;=======================================
 Dump(var, indent:=0)
-;  Dumps 'var' using Dbg with indent.
+;  Dumps 'var' using Dbgnt with indent.
 {
 	ind := IndentStr(indent)
 	if ( IsObject(var) ){
-		Dbg("{")
+		Dbgnt("{")
 		for key, val in var {
-			DbgN( ind . "[{}] = ", key )
+			Dbgn( ind . "[{}] = ", key )
 			Dump(val, indent+1)
 		}
-		Dbg(ind . "}")
+		Dbgnt(ind . "}")
 	} else {
 		if var is number 
-			Dbg("{}" , var)
+			Dbgnt("{}" , var)
 		else
-			Dbg("'{}'" , var)
+			Dbgnt("'{}'" , var)
 	}
 
 }
+
+;=======================================
+StrObjNames(objlist)
+; Return the list of the names (obj.name) of objects in objlist, 
+; in string form.
+{
+	if ( not objlist ){
+		str := "0"
+	} else {
+		str := "["
+		first := true
+		for obj in objlist {
+			if ( first ){
+				first := false
+			} else {
+				str .= ", "
+			}
+			str .= """" . obj.name . """"
+		}
+		str .= "]"
+	}
+	return str
+}
+
 ;=======================================
 Repr(var, indent:=0, col:=0)
 ;  Returns a compact string representation of var,

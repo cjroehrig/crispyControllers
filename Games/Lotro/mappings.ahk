@@ -1,14 +1,35 @@
 ; Common LotRO hotkey definitions
 #IfWinActive, ahk_exe lotroclient64.exe
 
-; Rotate window title
-!w::RotateWinTitle( LotroWin.Windows
-	,["^The Lord of the Rings Online*", "^LotRO *"] )
+; 	## USED bindings
+;	^!NumpadDot		- == Ctrl-Alt-Delete ! 
+;	^!g				- Xbox GameBar
+;	^!r				- XBox GameBar record
+;	^!t				- XBox GameBar stop record last 30 seconds
+;	## Lotro in-game Alt- bindings
+;	!r				- Radar on/off
+;	!f				- Find items
+;	!v				- Show names
+;	!d				- Show damage
+;	!h				- Detach tooltip
+;	!/  !.			- Screenshot
+;	!z				- Toggle HUD
+;	!x				- Item lock
+;	!m				- Music mode
+;	!1-9,0			- Fellowship target marking
+;	!=,etc			- Outfits
+;	!c				- show FPS
+;	AVAILABLE HERE:		qwe..yuiop as....jkl; ....bn.
+
+!e::LotroWin.RotateName()			; Rotate window name/title
+^!e::LotroWin.Reset()				; Remove all fellows
+!w::LotroWin.RotateParty(1)			; Rotate party order
+^!w::LotroWin.RotateParty(10)		; Fast-forward rotate party order
 
 ;==============================================================================
 ; Window layout & position
-!a::		LotroWin.layout_win()			; Alt A		layout windowed
-!q::		LotroWin.layout_full()			; Alt Q		layout fullscreen
+!a::		LotroWin.LayoutWindowed()			; Alt A		layout windowed
+!q::		LotroWin.LayoutFullScreen()			; Alt Q		layout fullscreen
 
 ;==============================================================================
 ; FOLLOWING 
@@ -30,17 +51,17 @@
 
 ; Sent to SELECTED or self + all followers (1s delay)
 Space::					; jump
-		LotroWin.Active.follower_hotkey(A_ThisHotkey, 1000)
+		LotroWin.FollowerHotkey(A_ThisHotkey, 1000)
 		return
 
-+z::	LotroWin.Active.follower_hotkey(A_ThisHotkey)		; warsteed boost
++z::	LotroWin.FollowerHotkey(A_ThisHotkey)		; warsteed boost
 
 ; These need special handling/nudging
-^Tab::	LotroWin.Active.follower_hotkey(A_ThisHotkey,0,1)	; walk/run [nudge]
-c::		LotroWin.Active.follower_hotkey(A_ThisHotkey, 200)	; warsteed stop
+^Tab::	LotroWin.FollowerHotkey(A_ThisHotkey,0,1)	; walk/run [nudge]
+c::		LotroWin.FollowerHotkey(A_ThisHotkey, 200)	; warsteed stop
 ; give a bit of extra time for followers to stop before mounting. [no-refollow]
 ; no-refollow because of warsteed dismount bug
-+d::	LotroWin.Active.follower_hotkey(A_ThisHotkey, 1500, 2)	; mount/unmount
++d::	LotroWin.FollowerHotkey(A_ThisHotkey, 1500, 2)	; mount/unmount
 
 
 ; Outfits
@@ -51,7 +72,7 @@ c::		LotroWin.Active.follower_hotkey(A_ThisHotkey, 200)	; warsteed stop
 !=::					; Outfit 5: Festival
 !+=::					; Outfit 6: Relax
 !^=::					; Outfit 7: 
-		LotroWin.Active.follower_hotkey(A_ThisHotkey)
+		LotroWin.FollowerHotkey(A_ThisHotkey)
 		return
 
 ; Target and use nearest object (SELECTED or default select fellow)
@@ -81,16 +102,16 @@ Numpad0 Up::	LotroWin.SetSelect(2, false)
 ; Change default fellow [= Alt + fellowselect modifiers]
 !NumpadDot::	LotroWin.Active.set_defaultfellow(1)
 !Numpad0::		LotroWin.Active.set_defaultfellow(2)
-; Change default target (0-5) of default (or selected) fellow: 0=self
-!^1::			LotroWin.Active.set_defaulttarget(0)
-!^2::			LotroWin.Active.set_defaulttarget(1)
-!^3::			LotroWin.Active.set_defaulttarget(2)
-!^4::			LotroWin.Active.set_defaulttarget(3)
-!^5::			LotroWin.Active.set_defaulttarget(4)
-!^6::			LotroWin.Active.set_defaulttarget(5)
+; Change the target (0-5) of default (or selected) fellow: 0=self
+!^1::			LotroWin.Active.set_remotetarget(0)
+!^2::			LotroWin.Active.set_remotetarget(1)
+!^3::			LotroWin.Active.set_remotetarget(2)
+!^4::			LotroWin.Active.set_remotetarget(3)
+!^5::			LotroWin.Active.set_remotetarget(4)
+!^6::			LotroWin.Active.set_remotetarget(5)
 
 
 ; Debugging
-!p::			LotroWin.dumpAll()
+!p::			LotroWin.DumpAll()
 
 #IfWinActive

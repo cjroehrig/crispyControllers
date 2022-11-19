@@ -51,13 +51,11 @@ Lib/ahk/util.ahk		| Utility functions.
 
 3.	For each toon, set up a dedicated ActionBar with slots for remote skills and assigned hotkeys. These are the skills that will be controlled by your other windows.  The default is `F1-F6`.  Those hotkeys are intercepted by mappings.ahk and sent to other windows;  this lets you assign `F1-F6` LotRO key bindings to control this ActionBar (they can only be triggered when the window is in the background).
 
-4.  Edit your defs file (start with defs-DuoAH.ahk) to define each window and the skilltargets (see the defs-Trio.ahk for example) for each of your skills, and whether to use Target or Assist (skillassist) for each skill.  There should be a LotroWin for each multi-boxed character.
+5.	Add Lotro to the crispyControllers `main.ahk` (uncomment it).
 
-5.	Add Lotro to the crispyControllers `main.ahk`, update the `MODE` file according to which mode you will be playing and run AutoHotKey `main.ahk`.
+6.	Log into each LotRO toon and use your RotateName key binding to set its window title to the correct role for that toon (DPS/HEAL/TANK).   (You can add your own sets of roles by editing the defs-* files.)
 
-6.	Log into each LotRO account/toon and use your Rotate Window Title key binding to set its window title to the correct title for that toon (as defined in your defs file).
-
-7.	Party up so that each window has the fellowship members in the correct order.  This may be tricky for larger parties and you may need to redefine your defs to make it possible.
+7.	Party up and use the RotateParty key binding to match each window's party in the titlebar with its actual party order.  You can party with other players, but your LotroWin fellows must be partied-up first (they must have the first party slots).
 
 8.	SELECT your background toon, turn FOLLOW on, and try out the various FOLLOW commands.  Run autohotkey in a terminal window to get lots of diagnostic info about what is happening.
 

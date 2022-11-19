@@ -3,23 +3,24 @@
 ;===============================================================================
 ; Window (and fellowship) definitions
 
-; fellows: array of titles of fellow windows in fellowship order.
-; skilltarget:  array of targets for each remote skill (bindings.skills)
-;			-2		use default target
+; skilltarget:	array of remote skill targets
+;			-2		use the remote fellow's currtarget
 ;			-1		No target: don't change target/assist
 ;			0		self
 ;			1-N		target/assist that fellowship member
+;			role	target/assist the first fellow with matching role (string)
+;					this can also use a suffix 2,3,4,... to match other instances
 ; skillassist:  array of bool for each remote skill.  
 ;			0		target the skilltarget before firing the skill
 ;			1		assist the skilltarget before firing the skill
-; defaulttarget:  as defined in skilltarget but can be changed on the fly
-; defaultfellow:  the default recipient of all the remote skills
+; defaulttarget:	the initial currtarget of each instance of this role
+;				  	(-1, 0, 1-N, role  - as defined for skilltarget)
+; defaultfellow:  the initial default recipient of all the remote skills
+;					(1-N, or role)
 ;===============================================================================
 ;
 ; Fellowship ordering: HEAL+DPS party up first; HEAL as leader -> invite TANK
-; NB:  KEEP HEAL as Fellowship Leader
-;     - If leadership changes, party order will also change!
-;	    (leader will always be on top).
+; NB:  KEEP HEAL as Fellowship Leader (if leader changes, party order changes!)
 ;	# 			self		N=1			N=2
 ;	# window	F1			F2			F3
 ;	DPS			DPS			HEAL		TANK
@@ -30,45 +31,31 @@
 ;	DPS will be on different select buttons when switching betw. TANK & HEAL)
 
 ; DPS
-new LotroWin( {title: "LotRO DPS"		
-		,winpos: LotroWinPos_botleft
+new LotroRole( "DPS"
+		,{winpos: LotroWinPos_botleft
 		,bindings: KK
-		,fellows:["LotRO HEAL", "LotRO TANK"]
 		,skilltarget:[ -2, -2, -2, -2, -2, -2 ]		; -1=none; -2=defaulttarget
 		,skillassist:[  1,  1,  1,  1,  1,  1 ]		; Assist
-		,defaulttarget: 	2						; Tank
-		,defaultfellow: 	1						; Heal
+		,defaulttarget: 	"TANK"
+		,defaultfellow: 	"HEAL"
 		,_:0})
 
 ; HEAL
-new LotroWin( {title: "LotRO HEAL"
-		,winpos: LotroWinPos_topleft
+new LotroRole( "HEAL"
+		,{winpos: LotroWinPos_topleft
 		,bindings: KK
-		,fellows:["LotRO DPS", "LotRO TANK"]
 		,skilltarget:[ -2, -2, -2, -2, -2, -2 ]		; -1=none; -2=defaulttarget
 		,skillassist:[  0,  0,  0,  0,  0,  0 ]		; no Assist (target)
-		,defaulttarget: 	1						; DPS [tank gets AoE heals]
-		,defaultfellow: 	2						; Tank
+		,defaulttarget: 	"DPS"					; (tank gets AoE heals)
+		,defaultfellow: 	"TANK"
 		,_:0})
 
 ; TANK
-new LotroWin( {title: "LotRO TANK"
-		,winpos: LotroWinPos_topright
+new LotroRole( "TANK"
+		,{winpos: LotroWinPos_topright
 		,bindings: KK
-		,fellows:["LotRO HEAL", "LotRO DPS"]
 		,skilltarget:[ -2, -2, -2, -2, -2, -2 ]		; -1=none; -2=defaulttarget
 		,skillassist:[  1,  1,  1,  1,  1,  1 ]		; Assist
-		,defaulttarget: 	2						; DPS
-		,defaultfellow: 	2						; DPS
-		,_:0})
-
-; INACTIVE
-new LotroWin( {title: LotroInactiveWinTitle
-		,winpos: LotroWinPos_topright
-		,bindings: KK
-		,fellows:false
-		,skilltarget:false
-		,skillassist:false
-		,defaulttarget:false
-		,defaultfellow:false
+		,defaulttarget: 	"DPS"
+		,defaultfellow: 	"DPS"
 		,_:0})

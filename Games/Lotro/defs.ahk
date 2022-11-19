@@ -1,6 +1,7 @@
 ; Lotro definitions
 
 #Include Lib/ahk/util.ahk
+#Include Lib/ahk/numerical.ahk
 #Include Games/Lotro/LotroWin.ahk
 #Include Games/Lotro/bindingdef.ahk
 
@@ -40,16 +41,8 @@ Dbg( "AutoHotKey LotRO ({}) starting on host {}", LotroMode, Hostname )
 
 ; Can't #include a string or variable...
 switch LotroMode {
-case "DuoAH":
-	#Include Games/Lotro/defs-DuoAH.ahk
-case "DuoAA":
-	#Include Games/Lotro/defs-DuoAA.ahk
 case "Trio":
 	#Include Games/Lotro/defs-Trio.ahk
 default:
 	Dbg("AutoHotKey LotRO: Unknown or Missing Lotro/MODE: " + LotroMode )
 }
-
-
-LotroWin.finalize()
-;LotroWin.dumpAll()

@@ -16,14 +16,15 @@ SendMode Input
 ; LotRO doesn't accept keystrokes unless it is active/has focus
 ; so we need to use ControlFocus; this sets delay (ms) to wait after 
 ; setting focus before sending keystroke.  Default = 20ms
-SetControlDelay 0
+;SetControlDelay 0
+SetControlDelay 20
 
 ; LotRO sometimes drops keys when sending long chat strings
 ;  SetKeyDelay Delay, PressDuration   # values in ms
 SetKeyDelay, 10, 10
 
 ; Delay after WinActivate (Default=100ms)
-SetWinDelay 0
+SetWinDelay 100
 #WinActivateForce
 
 SetTitleMatchMode 1		; leading match for window titles

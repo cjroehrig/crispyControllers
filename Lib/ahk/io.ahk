@@ -43,6 +43,22 @@ GetActiveTitle()
 }
 
 ;=======================================
+SetActiveTitle(newtitle)
+; Set the title of the Active window to 'newtitle'
+{
+	Dbg("SetActiveTitle({})", newtitle)
+	WinSetTitle, A,, %newtitle%
+}
+
+;=======================================
+SetWindowTitle(title, newtitle)
+; Set the title of the window called 'title' to 'newtitle'
+{
+	Dbg("WinSetTitle({},{})", title, newtitle)
+	WinSetTitle, %title%,, %newtitle%
+}
+
+;=======================================
 MoveWin(title, x, y, width:=0, height:=0)
 {
 	if ( width && height ){
@@ -55,6 +71,7 @@ MoveWin(title, x, y, width:=0, height:=0)
 		WinMove, % title,, x, y
 	}
 }
+
 
 
 ;=======================================
@@ -158,19 +175,20 @@ UnfocusWin(wintitle)
 ;=======================================
 SendChat(wintitle, text)
 ; Send text to wintitle, using ControlFocus to focus into a text field.
-; NB: this can cause win to execute with foreground 60 FPS.
 {
 	global SendDelay
 	if ( wintitle != "" ){
 		WinGetActiveTitle, awin
-		if ( wintitle != awin ){
+		if ( IsPrefix(wintitle, awin) ){
+			; Foreground window (NB: prefix match)
+			Dbg("SENDCHAT({}): {}", "ACTIVE:", wintitle, text)
+			Send, %text%
+		} else {
 			; Background window
 			Dbg("SENDCHAT({}): {}", wintitle, text)
 			ControlFocus, ,%wintitle%
 			ControlSend, , %text%, %wintitle%
-		} else {
-			Dbg("SENDCHAT({}): {}", "ACTIVE:".wintitle, text)
-			Send, %text%
+			UnfocusWin(wintitle)		; send back to background 
 		}
 	} else {
 		Dbg("SENDCHAT({}): {}", "ACTIVE", text)
@@ -191,15 +209,16 @@ SendWin(wintitle, keys)
 	keys := ExpandKeys(keys)
 	if ( wintitle != "" ){
 		WinGetActiveTitle, awin
-		if ( wintitle != awin ){
+		if ( IsPrefix(wintitle, awin) ){
+			; Foreground window (NB: prefix match)
+			Dbg("SEND({}): {}", "ACTIVE:", wintitle, keys)
+			Send, %keys%
+		} else {
 			; Background window
 			FocusWin(wintitle)
 			Dbg("SEND({}): {}", wintitle, keys)
 			ControlSend, , %keys%, %wintitle%
 			UnfocusWin(wintitle)
-		} else {
-			Dbg("SEND({}): {}", "ACTIVE:".wintitle, keys)
-			Send, %keys%
 		}
 	} else {
 		Dbg("SEND({}): {}", "ACTIVE", keys)

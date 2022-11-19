@@ -1,10 +1,13 @@
-; LotRO Window object
+; LotroWin	- object describing a LotRO window
+; LotroRole - object describing a role that a window can take.
 
 ; A LotRO window represents a character/toon in a fellowship
 ; with assorted methods to take actions within the fellowship.
 
+; REQUIRES SetTitleMatchMode 1
+
 ;===============================================================================
-; Copyright 2020 Chris Roehrig <croehrig@crispart.com>
+; Copyright 2022 Chris Roehrig <croehrig@crispart.com>
 ; 
 ; Redistribution and use in source and binary forms, with or without
 ; modification, are permitted provided that the following conditions are met:
@@ -31,8 +34,7 @@
 ;===============================================================================
 ;#Include util.ahk
 ;#Include io.ahk
-
-LotroInactiveWinTitle := "LotRO INACTIVE"
+;#Include numerical.ahk
 
 WinVersion := DllCall("GetVersion") & 0xFF
 if ( WinVersion == 10 ) {
@@ -45,36 +47,40 @@ if ( WinVersion == 10 ) {
 	WinBorderY := 8 + 30
 }
 
-class LotroWin {
-
+;===============================================================================
+class LotroRole {
+	; This class holds 
 	;==========================================================================
 	; Class properties
-	static Windows := []			; the list of all defined window objects
-	static _selectstate	:= false	; Array of fellow select states
+	static RoleList := []			; the list of all defined LotroRoles
 
 	;==========================================================================
 	; Instance Properties
 	; These should be filled in by passing a corresponding dictionary object
 	; to the constructor.
-	title	:= ""		; The window title
+	name := false			; This is used to create a window's title
+	idx := -1				; the index in the RoleList
 
 	; Window position: default to 1280x720
 	winpos := { width: 1280, 	height: 720,	x:0,	y:0 }
 
-	fellows	:= false		; array of window titles of fellows (in order)
-	skills	:= false		; array of skill key strings for this window[DEL]
-
 	; These 2 are arrays of the same length as bindings.skills:
-	skilltarget := false	; array of remote skill target fellow (0-5)
-							; 0 == self
-							; -1 == none; do not change target
-							; -2 == use defaulttarget
-	skillassist := false	; array of bool; true == assist instead of target
-
-	defaulttarget := -1		; default fellow target for remote skills (0-5)
-
+	skilltarget := false	; array of remote skill targets
+;			-2		use the remote fellow's currtarget
+;			-1		No target: don't change target/assist
+;			0		self
+;			1-N		target/assist that fellowship member
+;			role	target/assist the first fellow with matching role (string)
+;					this can also use a suffix 2,3,4,... to match other instances
+	skillassist := false	; array of bool for each remote skill.  
+;			0		target the skilltarget before firing the skill
+;			1		assist the skilltarget before firing the skill
+	defaulttarget := -1		; initial currtarget of each instance of this role
+;				  	(-1, 0, 1-N, role  - as defined for skilltarget)
 	defaultfellow := false	; default fellow for hotkey actions from this win
-							; 1 == first fellow
+;					(1-N, or role)
+
+
 
 	; dictionary of key bindings (as an example of required bindings)
 	bindings := 	{_:0
@@ -90,15 +96,85 @@ class LotroWin {
 							,"{F4}", "{F5}", "{F6}" ]
 		,_:0}
 
+	;==========================================================================
+	; Instance Methods
+
+	;========================================
+	__New(name, settings)
+	; CONSTRUCTOR: Initialize this object with a dictionary of settings,
+	; and add it to the class window list.
+	{
+		;Dbg( "LotroRole::__New()" )
+		for key, value in settings {
+			;Dbg( "  [{}] <-- {}", key, value )
+			this[key] := value
+		}
+		this.name := name
+		this.idx := LotroRole.RoleList.Length() + 1
+		LotroRole.RoleList.Push(this)
+		return this
+	}
+
+	;========================================
+	dump()
+	; dump this instance's datastructures
+	{
+		Dbg( "LotroRole[{}] name : {}:", this.idx, this.name )
+		wpos := this.winpos
+		Dbgnt( "      {:-15s} : {},{}  {},{}", "w,h  x,y"
+			,wpos.width, wpos.height, wpos.x, wpos.y )
+
+		Dbgnt( "      {:-15s} : {} ", "skilltarget", Repr(this.skilltarget))
+		Dbgnt( "      {:-15s} : {} ", "skillassist", Repr(this.skillassist))
+		Dbgnt( "      {:-15s} : {} ", "defaulttarget", this.defaulttarget)
+		Dbgnt( "      {:-15s} : {} ", "defaultfellow", this.defaultfellow )
+		Dbgnt( "      {:-15s} : {} ", "bindings"
+			, this.bindings ? Repr(this.bindings) : "false" )
+	}
+
+}
+
+
+
+;===============================================================================
+class LotroWin {
+	; 
+
+	;==========================================================================
+	; Class properties
+	static WindowList := []			; the list of all current LotroWin objects
+	static TitlePrefix := "LotRO "	; Window title prefix (followed by .name)
+	;static ExpandedTitle := false	; add additional info to title bar
+	static ExpandedTitle := true	; add additional info to title bar
+	; Array of 6 fellow select button states:
+	static _selectstate	:= [false, false, false, false, false, false]
+
+	;==========================================================================
+	; Instance Properties
+	name			:= false		; The window's name
+	title			:= false		; The window title
+		; NB: 'title' is used to identify/match windows by AutoHotKey,
+		; prefix doesn't appear to work reliably so this is the full title
+		; and since this is just a prefix, this class REQUIRES:
+		; 		SetTitleMatchMode 1
+	fulltitle		:= false		; The window's full title (with extra info)
+	role			:= false		; The window's LotroRole object
+	fellows			:= []			; array of LotroWin fellows (in party order)
+
 
 	;========================================
 	; Internal instance variables
 	; State
-	_following		:= false	; the object being followed
+	currtarget		:= false	; the currenttarget for remote skills
+	defaultfellow	:= false	; the default fellow for hotkeys
+	following		:= false	; the object being followed
 								; (distinct from commander when daisy-chained)
-	_commander		:= false	; the object who is the commander
-	_fellows		:= false	; array of LotroWins corresponding to fellows
-	_moving			:= false	; true if this window is "fellow_moving"
+	commander		:= false	; the object who is the commander
+	moving			:= false	; true if this window is "fellow_moving"
+	_oldtitle		:= false	; prev title used to identify the window
+
+	_permtest		:= false	; disable
+	;_permtest		:= [ "A", "B", "C", "D", "E" ]	; RotateParty test
 
 
 	;==========================================================================
@@ -109,41 +185,15 @@ class LotroWin {
 	; with the current active window.
 	Active[] {
 		get {
-			return LotroWin.getwin(GetActiveTitle())
+			return LotroWin.GetWin(GetActiveTitle())
 		}
 		set {
 		}
 	}
 
 	;========================================
-	finalize()
-	; Class method to get all windows ready.
-	; Fills in each win._fellows with an array of LotroWin objects
-	; corresponding to its fellows array.
-	{
-		LotroWin._selectstate := []
-		for k, win in LotroWin.Windows {
-			; set up array of fellow object
-			if (win.fellows) {
-				win._fellows := []
-				for k, title in win.fellows {
-					f := LotroWin.getwin(title)
-					if ( f ) {
-						win._fellows.Push(f)
-					} else {
-						Dbg("WARNING: finalize [{}]: no fellow window "
-								. "named '{}' found.", win.title, title )
-						win._fellows.Push(false)
-					}
-				}
-			}
-			LotroWin._selectstate.Push(false)
-		}
-	}
-
-	;========================================
 	SetSelect(n, val)
-	; Class method to set the fellow selectstate(n) to 'val' (true/false)
+	; Class method to set the select button(n) state to 'val' (true/false)
 	{
 		if ( LotroWin._selectstate 
 					&& n > 0 
@@ -158,42 +208,153 @@ class LotroWin {
 					LotroWin._selectstate[n] := false
 			}
 		} else {
-			Dbg( "SetSelect: n={} is out-of-bounds!", n )
+			Dbg( "ERROR: SetSelect: n={} is out-of-bounds!", n )
 		}
 	}
 
 	;========================================
-	getwin(title)
-	; Class method to return the window with given title
+	GetWin(title)
+	; Class method to return the window with given title (prefix)
 	{
-		for k, win in LotroWin.Windows {
-			if ( win.title == title ) {
+		for k, win in LotroWin.WindowList {
+			if ( IsPrefix(win.title, title) ){
 				return win
 			}
 		}
-		Dbg("WARNING: no such fellow window: [{}]", title )
+		;Dbg("WARNING: no such fellow window: [{}]", title )
 		return false
 	}
 
 	;========================================
-	layout_win()
+	Reset()
+	; Class method to remove all defined LotroWins.
+	; Useful when starting a new Lotro session when AutoHotKey
+	; is still running from last time.
+	{
+		while ( LotroWin.WindowList.Length() > 0 ){
+			LotroWin.WindowList[1].destroy()
+		}
+		for k, v in LotroWin._selectstate {
+			LotroWin._selectstate[k] := false
+		}
+		SetActiveTitle("The Lord of the Rings Online")
+	}
+
+	;========================================
+	RotateName()
+	; Class method to rotate the name/title of the Active window
+	; through all the defined LotroRoles.
+	; Once through the list, the title will changed to INACTIVE
+	; and be dropped from the WindowList.
+	{
+		win := LotroWin.Active
+		if ( !win ){
+			; new LotroWin
+			win := new LotroWin(LotroRole.RoleList[1])
+			win.title := GetActiveTitle()
+		} else {
+			idx := win.role.idx + 1
+			if ( idx > LotroRole.RoleList.Length() ){
+				; INACTIVE
+				win.destroy()
+				title := LotroWin.TitlePrefix . "INACTIVE "
+				SetWindowTitle(win.title, title)
+			} else {
+				role := LotroRole.RoleList[idx]
+				win.set_role(role)
+			}
+		}
+		LotroWin.UpdateNames()
+	}
+
+	;========================================
+	RotateParty(n:=1)
+	; Class method to rotate the party order of the Active window.
+	; This cycles through all permutations in steps of 'n' in
+	; lexicographic order (the most intuitive).
+	; For a full party, there are 5!=120 permutations, so n=10 can be used
+	; to "fast-forward".
+	{
+		win := LotroWin.Active
+		if ( !win ){
+			Dbg("RotateParty: active window is not a LotroWin")
+			return
+		}
+		i := 1
+		while ( i <= n ){
+			if (win._permtest){
+				NextPermutation(win._permtest)
+			} else if (win.fellows ) {
+				NextPermutation(win.fellows, Func("CmpObject"))
+			}
+			i += 1
+		}
+		for k, win in LotroWin.WindowList {
+			win.update_title()
+		}
+	}
+
+	;========================================
+	UpdateNames()
+	; Update all window names/titles.
+	{
+		; create new names for all windows
+		for k, win in LotroWin.WindowList {
+			name := win.role.name
+			suffix := ""
+			loop {
+				; check window name doesn't already exist
+				duplicate := false
+				i := 1
+				while ( i < k ) {
+					w := LotroWin.WindowList[i]
+					if ( w.name == name . suffix ) { 
+						duplicate := true
+						break
+					}
+					i += 1
+				}
+				if ( ! duplicate ) {
+					break
+				}
+				; duplicate -- append a digit
+				if ( suffix == "" ) {
+					suffix := 2
+				} else {
+					suffix += 1
+				}
+			}
+			win.name := name . suffix
+		}
+
+		; update the window titles
+		for k, win in LotroWin.WindowList {
+			win.update_title()
+		}
+	}
+
+	;========================================
+	LayoutWindowed()
 	; Class method to layout all windows in windowed mode.
 	{
 		global WinBorderX, WinBorderY
 		global LotroLayout_w, LotroLayout_wbg
 		cmd := "/ui layout load "
 		active := LotroWin.Active
-		for k, w in LotroWin.Windows {
+		for k, w in LotroWin.WindowList {
 			title := w.title
+			role := w.role
 			WinGetPos, x, y, width, height, %title%
-			Dbg("BEFORE: [{}]: {}x{} @ {},{}", w.title, width, height, x, y )
-			x := w.winpos.x
-			y := w.winpos.y
-			width := w.winpos.width + WinBorderX
-			height := w.winpos.height + WinBorderY
+			Dbg("Layout BEFORE: [{}]: {}x{} @ {},{}"
+				, w.name, width, height, x, y )
+			x := role.winpos.x
+			y := role.winpos.y
+			width := role.winpos.width + WinBorderX
+			height := role.winpos.height + WinBorderY
 			MoveWin( w.title, x, y, width, height )
 			WinGetPos, x, y, width, height, %title%
-			Dbg("AFTER:  [{}]: {}x{} @ {},{}", w.title, width, height, x, y )
+			Dbg("Layout AFTER:  [{}]: {}x{} @ {},{}"
+				, w.name, width, height, x, y )
 			if ( w.title == active.title ) {
 				SendChat("", cmd . LotroLayout_w . "{Enter}")
 			} else {
@@ -204,7 +365,7 @@ class LotroWin {
 	}
 
 	;========================================
-	layout_full()
+	LayoutFullscreen()
 	; Class method to layout all windows with Active in fullscreen
 	{
 		global FullScreen
@@ -212,7 +373,7 @@ class LotroWin {
 		cmd := "/ui layout load "
 		active := LotroWin.Active
 		MoveWin( "A", 0, 0, FullScreen.width, FullScreen.height )
-		for k, w in LotroWin.Windows {
+		for k, w in LotroWin.WindowList {
 			if ( w.title == active.title ) {
 				SendChat("", cmd . LotroLayout_f . "{Enter}")
 			} else {
@@ -223,13 +384,34 @@ class LotroWin {
 	}
 
 	;========================================
-	dumpAll()
+	FollowerHotKey(hotkeystr, delay:=0, nudge:=0)
+	; If the active window is a LotroWin, then send this
+	; to Active.follower_hotkey; otherwise send it to the active window.
+	{
+		win := LotroWin.Active
+		if (win) {
+			win.follower_hotkey(hotkeystr, delay, nudge)
+		} else {
+			; not a LotroWin; just an ordinary LotRO instance
+			keystr := ExpandHotKey(hotkeystr)
+			Send, %keystr%					; send to active window
+		}
+	}
+
+	;========================================
+	DumpAll()
 	; dump our class
 	{
 		Dbg("=================================================")
-		Dbg("DUMP: LotroWin.Windows (Length={}):", LotroWin.Windows.Length())
+		Dbg("DUMP: LotroRole.RoleList (Length={}):"
+				, LotroRole.RoleList.Length())
+		for k, role in LotroRole.RoleList {
+			role.dump()
+		}
+		Dbg("DUMP: LotroWin.WindowList (Length={}):"
+				, LotroWin.WindowList.Length())
 		Dbgnt( "  {:-15s} : {} ", "_selectstate" , Repr(LotroWin._selectstate))
-		for k, win in LotroWin.Windows {
+		for k, win in LotroWin.WindowList {
 			win.dump()
 		}
 	}
@@ -238,18 +420,98 @@ class LotroWin {
 	; Instance Methods
 
 	;========================================
-	__New(settings)
-	; CONSTRUCTOR: Initialize this object with a dictionary of settings,
+	__New(role)
+	; CONSTRUCTOR: Create a new object with the given LotroRole
 	; and add it to the class window list.
 	{
-		;Dbg( "LotroWin::__New()" )
-		for key, value in settings {
-			;Dbg( "  [{}] <-- {}", key, value )
-			this[key] := value
+		Dbg( "LotroWin::__New({})", role.name )
+		this.idx := LotroWin.WindowList.Length() + 1
+		LotroWin.WindowList.Push(this)
+		this.set_role(role)
+		Dbg( "   CREATED [{}]<{}>", this.idx, role.name )
+
+		; add us to everyone else's fellows (and them to ours)
+		for k, win in LotroWin.WindowList {
+			if ( win != this ){
+				this.fellows.Push(win)
+				win.fellows.Push(this)
+			}
 		}
-		LotroWin.Windows.Push(this)
+
 		return this
 	}
+	;========================================
+	set_role(role)
+	; Set this window's role to 'role' and initialize it
+	{
+		this.role := role
+		this.defaultfellow := role.defaultfellow
+		this.currtarget := role.defaulttarget
+	}
+
+	;========================================
+	destroy()
+	; Destroy this window and remove it from the WindowList
+	{
+		Dbg( "LotroWin::destroy([{}]{})", this.idx, this.name )
+		LotroWin.WindowList.RemoveAt(this.idx)
+
+		; renumber window indexes and remove from all fellow lists
+		for k, win in LotroWin.WindowList {
+			win.idx := k
+			for i, fellow in win.fellows {
+				if ( fellow == this ){
+					win.fellows.RemoveAt(i)
+				}
+			}
+		}
+	}
+
+	;========================================
+	update_title()
+	; Update the window title to reflect a new party, or other new info.
+	; this.fulltitle is the actual full window title string.
+	; this.title is the title prefix used in all I/O calls to match the window
+	; and needs to uniquely identify the window.
+	{
+		; Use a space as a positive terminator:
+		title := LotroWin.TitlePrefix . this.name . " "
+
+		fulltitle := title
+		if ( this._permtest ){
+			; for permutation testing...
+			for j, fellow in this._permtest {
+				fulltitle .= " - " . fellow
+			}
+		} else {
+			for j, fellow in this.fellows {
+				fulltitle .= " - " . fellow.name
+			}
+		}
+
+		if ( LotroWin.ExpandedTitle ){
+			; add info to titlebar
+			fulltitle .= "                                 "
+			fulltitle .= "     currtarget:"
+			fulltitle .= this.get_currtarget_str()
+			fulltitle .= "     defaultfellow:"
+			fellow := this.get_defaultfellow()
+			if ( fellow ) {
+				fulltitle .= fellow.name
+			} else {
+				fulltitle .= "NONE"
+			}
+		}
+
+		; update the title
+		if ( fulltitle != this.fulltitle ){
+			SetWindowTitle(this.title, fulltitle)
+			this.title := title
+			this.fulltitle := fulltitle
+		}
+	}
+
+
 
 	;========================================
 	follow_me(on:=true, delay:=0)
@@ -261,10 +523,10 @@ class LotroWin {
 		if ( selfellow ) {
 			if ( on ){
 				selfellow._follow(this)
-				selfellow._commander := this
+				selfellow.commander := this
 			} else {
 				selfellow._follow(false)
-				selfellow._commander := false
+				selfellow.commander := false
 			}
 		} else {
 			; no selected fellow: everyone follows
@@ -272,19 +534,19 @@ class LotroWin {
 				; on - Quickly change the state of all followers
 				; (in case another async follow occurs before we're finished)
 				target := this
-				for k, win in this._fellows {
+				for k, win in this.fellows {
 					Dbg("[{}]:  [{}] quick-starts following."
-						, this.title, win.title)
-					win._following := target
-					win._commander := this
+						, this.name, win.name)
+					win.following := target
+					win.commander := this
 					target := win		; daisy-chain followers
 				}
 				; then send the following keys after requisite delays
 				target := this
-				for k, win in this._fellows {
+				for k, win in this.fellows {
 					if ( delay > 0 ) {
 						Dbg("[{}]: Sleeping {} ms for [{}]"
-						, this.title, delay, win.title )
+						, this.name, delay, win.name )
 						Sleep(delay)
 					}
 					win._follow(target)
@@ -292,9 +554,9 @@ class LotroWin {
 				}
 			} else {
 				; off -  stop following immediately
-				for k, win in this._fellows {
+				for k, win in this.fellows {
 					win._follow(false)
-					win._commander := false
+					win.commander := false
 				}
 			}
 		}
@@ -303,26 +565,26 @@ class LotroWin {
 	;========================================
 	_follow(leader:=false)
 	; Follow leader (or stop following if it is false).
-	; NB: this does not change _commander; use follow_me*() for bindings
+	; NB: this does not change commander; use follow_me*() for bindings
 	{
 		if ( leader ) {
 			if ( leader == this ){
-				Dbg("[{}]: INTERNAL: Can't follow self!", this.title)
+				Dbg("[{}]: INTERNAL: Can't follow self!", this.name)
 			} else {
 				; Target leader
 				str := this.target_str(leader)
 				; and follow
-				str .= this.bindings.follow
-				Dbg("[{}]: Following [{}]", this.title, leader.title)
+				str .= this.role.bindings.follow
+				Dbg("[{}]: Following [{}]", this.name, leader.name)
 				SendWin(this.title, str)
-				this._following := leader
+				this.following := leader
 			}
 		} else {
 			; turn following off; blip forward
-			str := this.bindings.forward
-			Dbg("[{}]: Following OFF", this.title )
+			str := this.role.bindings.forward
+			Dbg("[{}]: Following OFF", this.name )
 			SendWin(this.title, str)
-			this._following := false
+			this.following := false
 		}
 	}
 
@@ -349,28 +611,28 @@ class LotroWin {
 
 		; no selfellow -- send to me and followers
 		SendWin(this.title, keystr)		; send to me
-		for k, win in LotroWin.Windows {
-			if ( win._commander == this ) {
+		for k, win in LotroWin.WindowList {
+			if ( win.commander == this ) {
 				; sleep first
 				if ( delay > 0 ) {
-					Dbg("[{}]: Sleeping {} ms", this.title, delay )
+					Dbg("[{}]: Sleeping {} ms", this.name, delay )
 					Sleep(delay)
 				}
 				; target me and send keystr
 				str := win.target_str(this)
 				str .= keystr
 				if ( nudge == 1) {
-					str .= win.bindings.forward
+					str .= win.role.bindings.forward
 				}
 				SendWin(win.title, str)
 
 				; re-follow
-				if ( win._following ) {
+				if ( win.following ) {
 					if ( nudge != 2 ){
 						; don't follow after a warsteed dismount
 						; (triggers a very odd jerky movement bug).
-						str := win.target_str(win._following)
-						str .= win.bindings.follow
+						str := win.target_str(win.following)
+						str .= win.role.bindings.follow
 						SendWin(win.title, str)
 					}
 				}
@@ -388,13 +650,13 @@ class LotroWin {
 		selfellow := false
 		; NB: GetKeyState() is not reliable (doesn't release), so we
 		; need to manage the state with explicit up/down hotkeys.
-;		for i, key in this.bindings.fellowselect {
+;		for i, key in this.role.bindings.fellowselect {
 ;			if (GetKeyState(key, "p")) {
 		for i, val in LotroWin._selectstate {
 			if ( val ) {
-				if ( i > 0 && i <= this._fellows.Length() ){
-					selfellow := this._fellows[i]
-					Dbg("[{}]: SELFELLOW: [{}]", this.title, selfellow.title)
+				if ( i > 0 && i <= this.fellows.Length() ){
+					selfellow := this.fellows[i]
+					Dbg("[{}]: SELFELLOW: [{}]", this.name, selfellow.name)
 				}
 			}
 		}
@@ -403,20 +665,41 @@ class LotroWin {
 	}
 
 	;========================================
-	_get_defaultfellow()
+	get_defaultfellow()
 	; Return the default fellow defined for this window.
+	; NB: this has the side-effect of setting it to the actual fellow object
 	{
-		n := this.defaultfellow
-		if ( ! n ) {
-			return false
-		}
-		if ( this._fellows && n > 0 && n <= this._fellows.Length() ){
-			selfellow := this._fellows[n]
-			Dbg("[{}]: SELFELLOW[default]: [{}]", this.title, selfellow.title)
+;		if ( IsObject(this.defaultfellow) ){
+;			; fast-path
+;			Dbg("[{}]: SELFELLOW[default]: [{}]"
+;				, this.name, this.defaultfellow.name )
+;			return this.defaultfellow
+;		}
+
+		if ( IsInteger(this.defaultfellow) ){
+			n := this.defaultfellow
+			if ( this.fellows && n > 0 && n <= this.fellows.Length() ){
+				selfellow := this.fellows[n]
+			} else {
+				selfellow := false
+			}
 		} else {
 			selfellow := false
-			Dbg("[{}]: SELFELLOW[default]: <void>", this.title )
+			for k, fellow in this.fellows {
+				if ( IsPrefix(this.defaultfellow, fellow.name) ){
+					selfellow := fellow
+					break
+				}
+			}
 		}
+		if ( selfellow ){
+			Dbg("[{}]: SELFELLOW[default]: [{}]", this.name, selfellow.name)
+;			this.defaultfellow := selfellow		; set for fast-path
+		} else {
+			Dbg("[{}]: SELFELLOW[default]: [{}] <void>"
+				, this.name, this.defaultfellow )
+		}
+
 		return selfellow
 	}
 
@@ -424,44 +707,87 @@ class LotroWin {
 	set_defaultfellow(n)
 	; Set the default fellow to n
 	{
-		if ( this._fellows && n > 0 && n <= this._fellows.Length() ){
-			selfellow := this._fellows[n]
-			this.defaultfellow := n
+		this.defaultfellow := n
+		if ( this.fellows && n > 0 && n <= this.fellows.Length() ){
+			selfellow := this.fellows[n]
 			Dbg("[{}]: SET defaultfellow={} [{}]"
-				, this.title, n, selfellow.title )
+				, this.name, n, selfellow.name )
 		} else {
-			Dbg("[{}]: SET defaultfellow: INVALID: {}", this.title, n )
+			Dbg("[{}]: SET defaultfellow: INVALID: {}", this.name, n )
 		}
+		this.update_title()
 	}
 
 	;========================================
-	set_defaulttarget(n)
-	; Set the default target of the selected (or default) fellow to n.
+	set_remotetarget(n)
+	; Set the currtarget of the selected (or default) remote fellow to n.
 	{
 		selfellow := this._get_selfellow()
 		if ( ! selfellow ) {
-			selfellow := this._get_defaultfellow()
+			selfellow := this.get_defaultfellow()
 			if ( ! selfellow ) {
 				return
 			}
 		}
-
-		selfellow.defaulttarget := n
-		if ( n > 0 && n <= selfellow.fellows.Length() ) {
-			Dbg("[{}]: SET defaulttarget={} [{}]"
-				, selfellow.title, n, selfellow.fellows[n] )
-		} else if ( n == 0 ){
-			Dbg("[{}]: SET defaulttarget={} <self>", selfellow.title, n)
-		} else {
-			Dbg("[{}]: SET defaulttarget={}", selfellow.title, n)
-		}
-
-		; Send selfellow a retarget:
-		if ( n+1 <= selfellow.bindings.target.Length() ){
-			SendWin(selfellow.title, selfellow.bindings.target[n+1])
-		}
+		selfellow.set_currtarget(n)
 	}
 
+	;========================================
+	set_currtarget(n)
+	; Set our currtarget to n (1..N)
+	{
+		if ( n > 0 && n <= this.fellows.Length() ) {
+			Dbg("[{}]: SET currtarget={} [{}]"
+				, this.name, n, this.fellows[n].name )
+		} else if ( n == 0 ){
+			Dbg("[{}]: SET currtarget={} <self>", this.name, n)
+		} else {
+			Dbg("[{}]: SET currtarget={}", this.name, n)
+		}
+		this.currtarget := n
+
+		; Send a retarget (NB: n=0 == self):
+		if ( n+1 <= this.role.bindings.target.Length() ){
+			SendWin(this.title, this.role.bindings.target[n+1])
+		}
+		this.update_title()
+	}
+
+	;========================================
+	get_currtarget()
+	; Return this window's current target as an integer 0..N
+	{
+		if ( IsInteger(this.currtarget) ){
+			return this.currtarget
+		} else {
+			; it's a string; find a match...
+			for k, fellow in this.fellows {
+				if ( IsPrefix(this.currtarget, fellow.name) ){
+					return k
+				}
+			}
+		}
+		Dbg("[{}]: get_currtarget: no match '{}' found; using -1 (no target)"
+				, this.name, this.currtarget )
+		return -1
+	}
+
+	;========================================
+	get_currtarget_str()
+	; Return this window's currtarget as a string
+	{
+		n := this.get_currtarget()
+		if ( n < 0 ) {
+			str := "NONE"
+		} else if ( n == 0 ) {
+			str := "self"
+		} else if ( n > 0 and n <= this.fellows.Length() ){
+			str := Format("{} [{}]", n, this.fellows[n].name)
+		} else {
+			str := Format("{}", n)
+		}
+		return str
+	}
 
 	;========================================
 	fellow_skill(n)
@@ -469,46 +795,47 @@ class LotroWin {
 	{
 		selfellow := this._get_selfellow()
 		if ( ! selfellow ) {
-			selfellow := this._get_defaultfellow()
+			selfellow := this.get_defaultfellow()
 			if ( ! selfellow ) {
 				return
 			}
 		}
+		role := selfellow.role
 
 		; range checks:
-		if ( n < 0 || n > selfellow.bindings.skills.Length() ) {
-			Dbg("ERROR: [{}]: has no bindings.skills[{}]", selfellow.title, n)
+		if ( n < 0 || n > role.bindings.skills.Length() ) {
+			Dbg("ERROR: Role [{}]: has no bindings.skills[{}]", role.name, n)
 			return
 		}
-		if ( n < 0 || n > selfellow.skilltarget.Length() ) {
-			Dbg("ERROR: [{}]: has no skilltarget[{}]", selfellow.title, n)
+		if ( n < 0 || n > role.skilltarget.Length() ) {
+			Dbg("ERROR: Role [{}]: has no skilltarget[{}]", role.name, n)
 			return
 		}
-		if ( n < 0 || n > selfellow.skillassist.Length() ) {
-			Dbg("ERROR: [{}]: has no skillassist[{}]", selfellow.title, n)
+		if ( n < 0 || n > role.skillassist.Length() ) {
+			Dbg("ERROR: [{}]: has no skillassist[{}]", role.name, n)
 			return
 		}
 
 		; construct the string
-		targ := selfellow.skilltarget[n]
+		targ := role.skilltarget[n]
 		dbgmsg := ""
 		if ( targ == -2 ){
-			; default target
-			targ := selfellow.defaulttarget
+			; use current target
+			targ := selfellow.get_currtarget()
 			dbgmsg .= "[default]"
 		}
 		if ( targ >= 0 ) {
-			if ( selfellow.skillassist[n] ){
+			if ( role.skillassist[n] ){
 				; assist fellow[targ]
-				str := selfellow.bindings.assist[targ+1]		; 1-offset
+				str := role.bindings.assist[targ+1]	; 1-offset
 				dbgmsg .= "Assist:["
 			} else {
 				; target fellow[targ]
-				str := selfellow.bindings.target[targ+1]		; 1-offset
+				str := role.bindings.target[targ+1]	; 1-offset
 				dbgmsg .= "Target:["
 			}
 			if ( targ <= selfellow.fellows.Length() ) {
-				dbgmsg .= selfellow.fellows[targ]
+				dbgmsg .= selfellow.fellows[targ].name
 			} else {
 				dbgmsg .= targ		; another party member
 			}
@@ -519,10 +846,10 @@ class LotroWin {
 		}
 
 		; add the actual skill hotkey
-		str .= selfellow.bindings.skills[n]
+		str .= role.bindings.skills[n]
 
 		Dbg("SKILL: [{}]: --> [{}]: skills[{}] with " . dbgmsg
-				,this.title, selfellow.title, n)
+				,this.name, selfellow.name, n)
 		SendWin(selfellow.title, str)
 	}
 
@@ -532,7 +859,7 @@ class LotroWin {
 	{
 		selfellow := this._get_selfellow()
 		if ( ! selfellow ) {
-			selfellow := this._get_defaultfellow()
+			selfellow := this.get_defaultfellow()
 			if ( ! selfellow ) {
 				return
 			}
@@ -547,23 +874,27 @@ class LotroWin {
 	{
 		selfellow := this._get_selfellow()
 		if ( ! selfellow ) {
-			selfellow := this._get_defaultfellow()
+			selfellow := this.get_defaultfellow()
 			if ( ! selfellow ) {
 				return
 			}
 		}
-		if ( ! selfellow._moving ) {
+		if ( ! selfellow.moving ) {
 			ActivateWin(selfellow.title)
 			FocusWin(selfellow.title)
-			str := "{" . selfellow.bindings.forward . " down}"
+			str := "{" . selfellow.role.bindings.forward . " down}"
 			; XXX: Somehow Ctrl Down is being sent to the fellow...
 			; str .= "{Ctrl up}"
-			SendWin(selfellow.title, str)
-			selfellow._moving := true
+			;SendWin(selfellow.title, str)		; XXX: this does UnfocusWin
+			title := selfellow.title
+			ControlSend, , %str%, %title%
+			selfellow.moving := true
 		} else {
 			; send more 
-			str := "{" . selfellow.bindings.forward . " down}"
-			SendWin(selfellow.title, str)
+			str := "{" . selfellow.role.bindings.forward . " down}"
+			;SendWin(selfellow.title, str)		; XXX: this does UnfocusWin
+			title := selfellow.title
+			ControlSend, , %str%, %title%
 		}
 	}
 
@@ -573,17 +904,17 @@ class LotroWin {
 	{
 		selfellow := this._get_selfellow()
 		if ( ! selfellow ) {
-			selfellow := this._get_defaultfellow()
+			selfellow := this.get_defaultfellow()
 			if ( ! selfellow ) {
 				return
 			}
 		}
-		if ( selfellow._moving ){
-			str := "{" . selfellow.bindings.forward . " up}"
+		if ( selfellow.moving ){
+			str := "{" . selfellow.role.bindings.forward . " up}"
 			SendWin(selfellow.title, str)
-			UnfocusWin(selfellow.title)
+			;UnfocusWin(selfellow.title)
 			ActivateWin(this.title)
-			selfellow._moving := false
+			selfellow.moving := false
 		}
 	}
 
@@ -591,13 +922,13 @@ class LotroWin {
 	target_str(fellow)
 	; Return a string for this window to target 'fellow'.
 	{
-		return this._select_str( fellow, this.bindings.target )
+		return this._select_str( fellow, this.role.bindings.target )
 	}
 	;========================================
 	assist_str(fellow)
 	; Return a string for this window to assist 'fellow'.
 	{
-		return this._select_str( fellow, this.bindings.assist )
+		return this._select_str( fellow, this.role.bindings.assist )
 	}
 
 	;========================================
@@ -605,13 +936,13 @@ class LotroWin {
 	; Return a string for this window to target/assist 'fellow'.
 	; keys is an array[6] of key strings to target/assist fellow 1-6
 	{
-		n := IndexOf(this.fellows, fellow.title)
+		n := IndexOf(this.fellows, fellow)
 
 		; sanity check
-		if ( this._fellows[n] != fellow ){
-			Dbg("[{}]: INTERNAL: _select_str: _fellows[{}]='{}'"
+		if ( this.fellows[n] != fellow ){
+			Dbg("[{}]: INTERNAL: _select_str: fellows[{}]='{}'"
 				. "object doesn't match object fellow='{}'"
-				, this.title, n, this._fellows[n].title, fellow.title)
+				, this.name, n, this.fellows[n].name, fellow.name)
 		}
 		n += 1			; first key is alway self; skip it
 		return keys[n]
@@ -621,40 +952,20 @@ class LotroWin {
 	dump()
 	; dump this instance's datastructures
 	{
-		Dbg( "  title : [{}]:", this.title )
-		wpos := this.winpos
-		Dbgnt( "      {:-15s} : {},{}  {},{}", "w,h  x,y"
-			,wpos.width, wpos.height, wpos.x, wpos.y )
-		Dbgnt( "      {:-15s} : {} ", "_following"
-			, this._following ? this._following.title : "false" )
-		Dbgnt( "      {:-15s} : {} ", "_commander"
-			, this._commander ? this._commander.title : "false" )
-		Dbgnt( "      {:-15s} : {} ", "_moving"
-			, this._moving ? "true" : "false" )
-		Dbgnt( "      {:-15s} : {} ", "bindings"
-			, this.bindings ? Repr(this.bindings) : "false" )
-		Dbgnt( "      {:-15s} : {} ", "fellows", Repr(this.fellows))
-		Dbgn(  "      {:-15s} : ", "_fellows")
-		if ( this._fellows ) {
-			Dbgn("[")
-			first := true
-			for k, o in this._fellows {
-				if ( first ){
-					first := false
-				} else {
-					Dbgn(", ")
-				}
-				Dbgn( """{}""", o.title )
-			}
-			Dbgnt("]")
+		Dbg( "LotroWin[{}] name : {}:", this.idx, this.name )
+		Dbgnt( "      {:-15s} : [{}]{} ", "role", this.role.idx, this.role.name)
+		Dbgnt( "      {:-15s} : {} ", "title", this.title )
+		Dbgnt( "      {:-15s} : {} ", "fulltitle", this.fulltitle )
+		Dbgnt( "      {:-15s} : {} ", "following"
+			, this.following ? this.following.title : "false" )
+		Dbgnt( "      {:-15s} : {} ", "commander"
+			, this.commander ? this.commander.title : "false" )
+		Dbgnt( "      {:-15s} : {} ", "moving"
+			, this.moving ? "true" : "false" )
 		Dbgnt( "      {:-15s} : {} ", "defaultfellow", this.defaultfellow )
-		Dbgnt( "      {:-15s} : {} ", "skills", Repr(this.skills))
-		Dbgnt( "      {:-15s} : {} ", "skilltarget", Repr(this.skilltarget))
-		Dbgnt( "      {:-15s} : {} ", "skillassist", Repr(this.skillassist))
-		Dbgnt( "      {:-15s} : {} ", "defaulttarget", this.defaulttarget)
-		} else {
-			Dbgnt("0")
-		}
+		Dbgnt( "      {:-15s} : {} ", "currtarget", this.currtarget)
+		Dbgnt(  "      {:-15s} : {}", "fellows", StrObjNames(this.fellows))
+		Dbgnt(  "      {:-15s} : {}", "_permtest", Repr(this._permtest))
 	}
 
 }
