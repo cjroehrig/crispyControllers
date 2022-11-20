@@ -490,16 +490,16 @@ class LotroWin {
 		}
 
 		if ( LotroWin.ExpandedTitle ){
-			; add info to titlebar
-			fulltitle .= "                                 "
-			fulltitle .= "     currtarget:"
-			fulltitle .= this.get_currtarget_str()
-			fulltitle .= "     defaultfellow:"
-			fellow := this.get_defaultfellow()
-			if ( fellow ) {
-				fulltitle .= fellow.name
-			} else {
-				fulltitle .= "NONE"
+			if ( this.fellows.Length() > 0 ){
+				; add info to titlebar
+				fulltitle .= "                                 "
+				fulltitle .= "     currtarget:" . this.get_currtarget_str()
+				if ( this.fellows.Length() > 1 ) {
+					fulltitle .= "                                 "
+					fellow := this.get_defaultfellow()
+					fulltitle .= "defaultfellow:"
+					fulltitle .= fellow ? fellow.name :"NONE"
+				}
 			}
 		}
 
@@ -696,8 +696,15 @@ class LotroWin {
 			Dbg("[{}]: SELFELLOW[default]: [{}]", this.name, selfellow.name)
 ;			this.defaultfellow := selfellow		; set for fast-path
 		} else {
-			Dbg("[{}]: SELFELLOW[default]: [{}] <void>"
-				, this.name, this.defaultfellow )
+			if ( this.fellows.Length() > 0 ){
+				; no match - default to the first fellow
+				selfellow := this.fellows[1]
+				Dbg("[{}]: SELFELLOW[default]: [{}] <first>"
+					, this.name, selfellow.name )
+			} else {
+				Dbg("[{}]: SELFELLOW[default]: [{}] <void>"
+					, this.name, this.defaultfellow )
+			}
 		}
 
 		return selfellow
