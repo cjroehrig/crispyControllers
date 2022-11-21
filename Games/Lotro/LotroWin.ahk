@@ -367,12 +367,13 @@ class LotroWin {
 	;========================================
 	LayoutFullscreen()
 	; Class method to layout all windows with Active in fullscreen
+	; XXX: this should really be called LoadAllUILayouts()
 	{
 		global FullScreen
 		global LotroLayout_f, LotroLayout_wbg
 		cmd := "/ui layout load "
 		active := LotroWin.Active
-		MoveWin( "A", 0, 0, FullScreen.width, FullScreen.height )
+		;MoveWin( "A", 0, 0, FullScreen.width, FullScreen.height )
 		for k, w in LotroWin.WindowList {
 			if ( w.title == active.title ) {
 				SendChat("", cmd . LotroLayout_f . "{Enter}")

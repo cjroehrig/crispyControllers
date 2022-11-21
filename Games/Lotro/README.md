@@ -16,42 +16,27 @@ NB: In AutoHotKey, there can be no definitions after the first mapping, so the c
 
 File					| Description
 ----					| -----------
-mappings.ahk			| The AutoHotKey key bindings and actions.  These are the keybindings that are intercepted and used to control the other window(s).
-defs.ahk				| A wrapper to read the MODE file which tells which defs-*.ahk file to read.
+mappings.ahk			| The AutoHotKey key bindings and actions.  These are the hotkeys that are intercepted and used to control the other window(s).
+defs.ahk				| Your Lotro configuration and more keybindings
 LotroWin.ahk			| The LotroWin class which contains the logic for operating LotRO windows/characters.
-bindingdef.ahk			| Key binding definitions in a dictionary (KK). These are the LotRO in-game keybindings used by LotroWin to control a window.
-MODE					| a single word: DuoAH, DuoAA or Trio
-### Setup definitions
-
-File					| Description
-----					| -----------
-defs-DuoAH.ahk			| A duoboxed party of 2 (dps + heal).
-defs-DuoAA.ahk			| A duoboxed party of 2 (dps + dps) [both are assists]
-defs-Trio.ahk			| A trioboxed party of 3 (dps + heal + tank).
-
-### Library files
-File					| Description
-----					| -----------
-Lib/ahk/io.ahk			| I/O functions (that actually do the Windows calls).
-Lib/ahk/util.ahk		| Utility functions.
-
 
 ## HOW TO GET STARTED:
-1.	Install crispyControllers and AutoHotKey:  
+1.	Install crispyControllers and AutoHotKey (FreePIE is not needed):
 	https://github.com/cjroehrig/crispyControllers
 
-2.  Edit `mappings.ahk` and `bindingdef.ahk` to use your preferred key bindings, and `defs.ahk` with your preferred window sizes and resolutions.  NB: The examples here are set up to use ESDF instead of WASD.
 
-	The `mappings.ahk` uses standard AutoHotKey mappings:  
+2.  Edit `mappings.ahk` and `defs.ahk` to use your preferred key bindings and your preferred window sizes and resolutions.  NB: The examples here are set up to use ESDF instead of WASD.
+
+	The `mappings.ahk` assignments use standard AutoHotKey hotkey notation:  
 	https://www.autohotkey.com/docs/Hotkeys.htm
 
-	The `bindingdef.ahk` uses the format for the AutoHotKey `Send` command:  
+	`bindingdef.ahk` and all function calls use the curly-brace `Send` notation:
 	https://www.autohotkey.com/docs/commands/Send.htm  
 	https://www.autohotkey.com/docs/KeyList.htm  
 
 3.	For each toon, set up a dedicated ActionBar with slots for remote skills and assigned hotkeys. These are the skills that will be controlled by your other windows.  The default is `F1-F6`.  Those hotkeys are intercepted by mappings.ahk and sent to other windows;  this lets you assign `F1-F6` LotRO key bindings to control this ActionBar (they can only be triggered when the window is in the background).
 
-5.	Add Lotro to the crispyControllers `main.ahk` (uncomment it).
+5.	Add Lotro to the crispyControllers `main.ahk` (uncomment it if not already).
 
 6.	Log into each LotRO toon and use your RotateName key binding to set its window title to the correct role for that toon (DPS/HEAL/TANK).   (You can add your own sets of roles by editing the defs-* files.)
 
@@ -81,8 +66,8 @@ f | Full screen layout.
 w | Windowed layout.
 wbg | Background window layout.
 
-These files are automatically loaded using the layout_full() and
-layout_win() functions.  I found it useful to have the following Combat options set in the `wbg` layout (but not in the foreground `w` and `f` layouts):
+These files are automatically loaded using the LayoutFullScreen() and
+LayoutWindowed() functions.  I found it useful to have the following Combat options set in the `wbg` layout (but not in the foreground `w` and `f` layouts):
 - Allow skill buttons to target nearest enemy
 - Enable skill target forwarding
 - Enable movement assistance in combat
@@ -92,27 +77,26 @@ For immersion, turn down all volume sliders for all your background toons except
 To be effective in full-screen, your `F1-F6` skills should be ones which don't require knowledge of any "procs" which you can't see.   Cooldowns are ok -- you eventually get a sense of the timing.
 
 I set up my `F1-F6` (remote) ActionBar to:
-### DPS (Hunter):
-1.	Splitshot
-2.	Blindside
+### DPS (Red Hunter):
+1.	Purge Poison
+2.	Upshot
 3.	Quick Shot
-4.	Penetrating Shot
-5.	Blood Arrow
-6.	Merciful Shot
+4.	Swift Bow
+5.	Merciful Shot
+6.	Heart Seeker
 
-### HEAL (Minstrel):
-1.	Still as Death
-2.	Story of Courage
+### HEAL (Blue Minstrel):
+1.	Story of Courage
+1.	Solioquy of Spirit
 3.	Chord of Salvation
 4.	Inspire Fellows
 5.	Bolster Courage
 6.	Triumphant Spirit (or Fellowship's Heart)
 
 ### TANK (Guardian):
-1.	Stamp
-2.	Challenge
+1.	Ignore the Pain
+2.	Stamp
 3.	Guardian's Ward
 4.	Vexing Blow
 5.	Sweeping Cut
-6.	Engage
-
+6.	Challenge

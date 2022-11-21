@@ -1,6 +1,11 @@
 ; Common LotRO hotkey definitions
 #IfWinActive, ahk_exe lotroclient64.exe
 
+; AutoHotKey convention:
+;		!		Alt
+;		^		Ctrl
+;		+		Shift
+
 ; 	## USED bindings
 ;	^!NumpadDot		- == Ctrl-Alt-Delete ! 
 ;	^!g				- Xbox GameBar
@@ -35,14 +40,19 @@
 ; FOLLOWING 
 ; These functions have two modes of operation:
 ;	1)  SELECTED mode - if a fellowselect modifier key is held down,
-;	they apply just to the selected fellow.
+;	they apply just to the SELECTed fellow.
 ;	2)	default mode: 
-;				follower_*		applies to self and all followers (refollow)
+;				FollowerHotkey():	applies to self and all followers (refollow)
 ;					NB: for each follower, the leader will be targetted 
 ; 					before the hotkey is sent; the leader will be "refollowed"
-;					after sending the hotkey
-;				fellow_*		applies just to defaultfellow
-;								(as defined in the defs-* file)
+;					after sending the hotkey.
+;					It has optional parameters for delay (ms) and flags
+;					flags:
+;						1	nudge before refollowing
+;						2	do not refollow
+;					NB: this takes a hotkey parameter in hotkey format, 
+;					not Send format.
+;				fellow_*()		applies just to defaultfellow
 
 ; Turn following on/off (SELECTED or all fellows)
 +f::	LotroWin.Active.follow_me(true, 1000)			; follow on
@@ -75,8 +85,9 @@ c::		LotroWin.FollowerHotkey(A_ThisHotkey, 200)	; warsteed stop
 		LotroWin.FollowerHotkey(A_ThisHotkey)
 		return
 
-; Target and use nearest object (SELECTED or default select fellow)
-^`::	LotroWin.Active.fellow_send(KK.targetanduse)	; Ctrl-`
+; Target and use nearest object (SELECTED or defaultfellow) - Ctrl-backquote
+; NB: fellow_send takes a string in Send format, not hotkey format.
+^`::	LotroWin.Active.fellow_send("{Shift down}VC{Shift up}")
 
 ; SELECTed fellow movement (when Ctrl is held)
 ^e::	LotroWin.Active.fellow_move_start()		; Ctrl E
@@ -94,7 +105,7 @@ F5::		LotroWin.Active.fellow_skill(5)			; skill 5
 F6::		LotroWin.Active.fellow_skill(6)			; skill 6
 
 
-; Fellow Select state
+; Fellow Select state (hold to use as a shift-type modifier)
 NumpadDot::		LotroWin.SetSelect(1, true)
 NumpadDot Up::	LotroWin.SetSelect(1, false)
 Numpad0::		LotroWin.SetSelect(2, true)
@@ -103,6 +114,7 @@ Numpad0 Up::	LotroWin.SetSelect(2, false)
 !NumpadDot::	LotroWin.Active.set_defaultfellow(1)
 !Numpad0::		LotroWin.Active.set_defaultfellow(2)
 ; Change the target (0-5) of default (or selected) fellow: 0=self
+; NB: 	^!NumpadDot is Ctrl-Alt-Delete! so holding NumpadDot won't work here:
 !^1::			LotroWin.Active.set_remotetarget(0)
 !^2::			LotroWin.Active.set_remotetarget(1)
 !^3::			LotroWin.Active.set_remotetarget(2)
