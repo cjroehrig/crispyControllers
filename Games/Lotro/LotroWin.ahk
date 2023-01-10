@@ -241,6 +241,19 @@ class LotroWin {
 	}
 
 	;========================================
+	ResetRoles()
+	; Class method to reset all windows' role defaults.
+	{
+		for k, win in LotroWin.WindowList {
+			win.set_role(win.role)
+		}
+		for k, win in LotroWin.WindowList {
+			win.update_title()
+		}
+	}
+
+
+	;========================================
 	RotateName()
 	; Class method to rotate the name/title of the Active window
 	; through all the defined LotroRoles.
@@ -523,11 +536,13 @@ class LotroWin {
 		selfellow := this._get_selfellow()
 		if ( selfellow ) {
 			if ( on ){
-				selfellow._follow(this)
+				selfellow.following := this
 				selfellow.commander := this
+				selfellow._send_follow(this)
 			} else {
-				selfellow._follow(false)
+				selfellow.following := false
 				selfellow.commander := false
+				selfellow._send_follow(false)
 			}
 		} else {
 			; no selected fellow: everyone follows
@@ -543,20 +558,22 @@ class LotroWin {
 					target := win		; daisy-chain followers
 				}
 				; then send the following keys after requisite delays
-				target := this
 				for k, win in this.fellows {
 					if ( delay > 0 ) {
 						Dbg("[{}]: Sleeping {} ms for [{}]"
 						, this.name, delay, win.name )
 						Sleep(delay)
 					}
-					win._follow(target)
-					target := win		; daisy-chain followers
+					; NB: async: state could have changed in the meantime...
+					if ( win.following ) {
+						win._send_follow(win.following)
+					}
 				}
 			} else {
 				; off -  stop following immediately
 				for k, win in this.fellows {
-					win._follow(false)
+					win._send_follow(false)
+					win.following := false
 					win.commander := false
 				}
 			}
@@ -564,9 +581,8 @@ class LotroWin {
 	}
 
 	;========================================
-	_follow(leader:=false)
-	; Follow leader (or stop following if it is false).
-	; NB: this does not change commander; use follow_me*() for bindings
+	_send_follow(leader:=false)
+	; Send bindings to follow leader (or stop following if it is false).
 	{
 		if ( leader ) {
 			if ( leader == this ){
@@ -578,7 +594,6 @@ class LotroWin {
 				str .= this.role.bindings.follow
 				Dbg("[{}]: Following [{}]", this.name, leader.name)
 				SendWin(this.title, str)
-				this.following := leader
 			}
 		} else {
 			; turn following off; blip forward

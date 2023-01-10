@@ -27,6 +27,7 @@
 #Include Games/LANoire/mappings.ahk
 #Include Games/GoogleEarth/mappings.ahk
 #Include Games/KingdomCome/mappings.ahk
+#Include Games/TombRaider/mappings.ahk
 ;#Include Games/EliteDangerous/mappings.ahk
 ; FINISHED:
 ;#Include Games/AC2/mappings.ahk

@@ -22,7 +22,7 @@ Numpad9::		Send,{Alt down}Q{Alt up}	; Pitch trim down
 NumpadEnter::	Send,{Alt down}A{Alt up}	; Pitch trim up
 
 Numpad0::		]							; Focus Next Vessel
-NumpadDot::		z							; Precision Controls Toggle
+NumpadDiv::		z							; Precision Controls Toggle
 
 ;Numpad1::
 ;Numpad3::

@@ -256,7 +256,7 @@ StrObjNames(objlist)
 	} else {
 		str := "["
 		first := true
-		for obj in objlist {
+		for i, obj in objlist {
 			if ( first ){
 				first := false
 			} else {

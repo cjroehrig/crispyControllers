@@ -11,6 +11,7 @@
 ;	^!g				- Xbox GameBar
 ;	^!r				- XBox GameBar record
 ;	^!t				- XBox GameBar stop record last 30 seconds
+;	!NumpadDiv, !Numpad0, !NumpadEnter	- VLC <<, ||, >>   UGH
 ;	## Lotro in-game Alt- bindings
 ;	!r				- Radar on/off
 ;	!f				- Find items
@@ -28,6 +29,7 @@
 
 !e::LotroWin.RotateName()			; Rotate window name/title
 ^!e::LotroWin.Reset()				; Remove all fellows
++!e::LotroWin.ResetRoles()			; Reset all window's roles
 !w::LotroWin.RotateParty(1)			; Rotate party order
 ^!w::LotroWin.RotateParty(10)		; Fast-forward rotate party order
 
@@ -106,13 +108,27 @@ F6::		LotroWin.Active.fellow_skill(6)			; skill 6
 
 
 ; Fellow Select state (hold to use as a shift-type modifier)
-NumpadDot::		LotroWin.SetSelect(1, true)
-NumpadDot Up::	LotroWin.SetSelect(1, false)
-Numpad0::		LotroWin.SetSelect(2, true)
-Numpad0 Up::	LotroWin.SetSelect(2, false)
-; Change default fellow [= Alt + fellowselect modifiers]
-!NumpadDot::	LotroWin.Active.set_defaultfellow(1)
-!Numpad0::		LotroWin.Active.set_defaultfellow(2)
+NumpadDiv::		
+	Critical
+	LotroWin.SetSelect(1, true)
+	return
+*NumpadDiv Up::	
+	Critical
+	LotroWin.SetSelect(1, false)
+	return
+Numpad0::		
+	Critical
+	LotroWin.SetSelect(2, true)
+	return
+*Numpad0 Up::	
+	Critical
+	LotroWin.SetSelect(2, false)
+	return
+
+; Change default fellow [= Ctrl-Alt + fellowselect modifiers]
+!^NumpadDiv::	LotroWin.Active.set_defaultfellow(1)
+!^Numpad0::		LotroWin.Active.set_defaultfellow(2)
+
 ; Change the target (0-5) of default (or selected) fellow: 0=self
 ; NB: 	^!NumpadDot is Ctrl-Alt-Delete! so holding NumpadDot won't work here:
 !^1::			LotroWin.Active.set_remotetarget(0)

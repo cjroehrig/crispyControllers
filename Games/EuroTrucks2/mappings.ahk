@@ -4,8 +4,8 @@
 ; XXX: Do normal bindings in controls.sii
 
 ; Auto-Zoom
-NumpadDot::		AutoKey.Down("NumpadDot")
-NumpadDot Up::	AutoKey.Up("NumpadDot")
+NumpadDiv::		AutoKey.Down("NumpadDiv")
+NumpadDiv Up::	AutoKey.Up("NumpadDiv")
 ;~d::	AutoKey.Off("e"), AutoKey.Off("a")
 
 #IfWinActive

@@ -27,7 +27,7 @@
 +F9::			ControlSend, , {Alt down}{Right}{Alt up},	ahk_exe vlc.exe
 ; Razor Naga Alt-bottom row
 ; (~ == Pass through)
-!NumpadDot::	ControlSend, , {Alt down}{Left}{Alt up},	ahk_exe vlc.exe
+!NumpadDiv::	ControlSend, , {Alt down}{Left}{Alt up},	ahk_exe vlc.exe
 !Numpad0::		ControlSend, , {space},						ahk_exe vlc.exe
 	; NB: Alt-space brings up a window's title-bar menu;  this
 	; occasionally spuriously pops up in VLC when I use this...

@@ -22,7 +22,7 @@ Numpad2::x				; Quick menu
 Numpad3::j				; Build menu
 Numpad5::c				; Scan
 Numpad9::v				; Next Target
-NumpadDot::LCtrl		; Free Look
+NumpadDiv::LCtrl		; Free Look
 
 
 ; unbound

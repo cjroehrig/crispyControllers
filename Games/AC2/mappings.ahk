@@ -14,7 +14,7 @@ Numpad5::Space			; Menu Select  LEGS
 Numpad2::G				; HEAD
 Numpad4::Esc			; Menu
 Numpad7::Tab			; Map / Menu Exit All
-NumpadDot::B			; Contextual Camera
+NumpadDiv::B			; Contextual Camera
 Numpad0::Z				; FP Camera
 ---
 Numpad3::2				; Hidden Blade

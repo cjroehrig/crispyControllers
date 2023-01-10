@@ -4,6 +4,6 @@
 s::			Left					; 
 f::			Right
 
-;NumpadDot::		AutoKey.Down("NumpadDot")
+;NumpadDiv::		AutoKey.Down("NumpadDiv")
 
 #IfWinActive

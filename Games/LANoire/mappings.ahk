@@ -13,7 +13,7 @@ Numpad4::	l				; Notebook
 ; Unbound
 ;Numpad8::
 ;Numpad9::
-;NumpadDot::
+;NumpadDiv::
 ;Numpad0::
 
 #IfWinActive

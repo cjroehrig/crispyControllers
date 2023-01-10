@@ -14,7 +14,7 @@ Numpad7::		M		; Map
 Numpad8::		O		; toggle HUD
 ;Numpad9::		
 
-NumpadDot::		Escape	; :/
+NumpadDiv::		Escape	; :/
 Numpad0::		Y		; Next quickslot
 NumpadEnter::	Enter	; :/
 

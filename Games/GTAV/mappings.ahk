@@ -14,5 +14,14 @@ PrintScreen::	CapsLock
 -:: AutoKey.Down("F") AutoKey.Down("E")
 - Up:: AutoKey.Up("F") AutoKey.Up("E")
 
+; Naga
+Numpad3:: Backspace
+Numpad2:: Up
+Numpad4:: Left
+Numpad5:: Down
+Numpad6:: Right
+Numpad7:: Escape
+Numpad9:: CapsLock
+
 
 #IfWinActive

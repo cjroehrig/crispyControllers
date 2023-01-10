@@ -21,7 +21,7 @@ Numpad3::	Backspace
 ; Unbound
 ;Numpad8::
 ;Numpad9::
-;NumpadDot::
+;NumpadDiv::
 ;Numpad0::
 
 #IfWinActive
