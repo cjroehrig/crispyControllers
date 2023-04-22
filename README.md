@@ -3,24 +3,28 @@
 A framework and library for FreePIE and AutoHotKey with examples.
 Feel free to use any code you find useful.
 
+My goal was to simplify my various AutoHotKey and FreePIE scripts and
+get the most natural-feeling keyboard and mouse analog steering I could.
+
 - FreePIE is a Python-based scripting engine for analog game controllers:  
 	https://andersmalmgren.github.io/FreePIE/
-- AutoHotKey is a keyboard remapping scripting engine:  
+- AutoHotKey (AHK) is a keyboard remapping scripting engine:  
 	https://autohotkey.com
 
 
 ### Features:
 - multiple-file Python modules and modular per-game folders (also for AutoHotKey)
-- automatic switching between games
+- automatic switching between games; no autohotkey/freepie restarts required.
 - support for debugging with native Python (for better diagnostics)
-- keyboard+mouse+headtracker to vjoy with acceleration, decay, smoothing, mouse steer/look toggle, accurate timing, etc
+- keyboard+mouse+headtracker to vjoy with acceleration, decay, smoothing, mouse steer/look toggle, accurate timing, etc.
+
 
 ### Example Games:
 Game						| Description
 -------------------------	| -----------
 EliteDangerous				| Smooth key/mouse and EDTracker
 Euro Truck Simulator 2		| Smooth key/mouse and EDTracker
-[Lord of the Rings Online](Games/LotRO/README.md)	| Multi-boxing with a mixed-class party (AHK).
+[Lord of the Rings Online](Games/Lotro/README.md)	| Multi-boxing with a mixed-class party (AHK).
 
 ### A Tour 
 File						| Description
@@ -35,19 +39,19 @@ File						| Description
 
 ------------------------------------------------------------------------------
 ## Basic Usage
-1.	Add your game code under the Games directory.  See existing examples.
-2.	Add a line for your game in main.py or main.ahk as appropriate.
+-	Add your game code under the Games directory.  See existing examples.
+-	Add a line for your game in main.py or main.ahk as appropriate.
     (Comment-out or remove entries you are not using.)
-3.	Run the main.py and/or main.ahk (in separate Terminals):
+-	Run the main.py and/or main.ahk (in separate Terminals):
 
 		freepie main.py
 
 		ahk main.ahk
 
 You can also run them using the GUIs once you have debugged things.
-I generally leave AutoHotKey running all the time (but FreePIE needs to be restarted when re-plugging in the EDTracker).
+I generally leave AutoHotKey running all the time (FreePIE needs to be restarted when re-plugging the EDTracker).
 
-NOTE: My examples use ESDF instead of WASD and assume a lot of
+NB: My examples use ESDF instead of WASD and assume a lot of
 in-game bindings, so they almost certainly won't work for you without
 modification.
 
@@ -66,7 +70,7 @@ NB: these notes are mainly for my own reminders, so you may want to do something
 
 3. Install the packages below.  (PF="Program Files")
 
-4. OPTIONAL: Create symlinks for running AutoHotKey and Freepie from the command-line:
+4. OPTIONAL: Create symlinks for running AutoHotKey and Freepie from the Cygwin command-line:
 
 		ln -s "/cygdrive/c/Program Files/AutoHotkey/AutoHotkey.exe" ~/bin/ahk
 		ln -s "../Documents/crispyControllers/INSTALL/bin/freepie" ~/bin/freepie
@@ -104,14 +108,14 @@ http://vjoystick.sourceforge.net
 ## FreePIE
 https://andersmalmgren.github.io/FreePIE/
 
-### OPTION 1: stock version
+### OPTION 1: stock version (no Console)
 This does not include the GUI-less Console version which you might prefer if you want to run it from a terminal.
 
 1. Download and install it to C:\Program Files (x86)
 
 2. Create the required symlinks in the FreePIE/pylib directory (as Administrator):
 
-		# XXX: untested  (Cygwin: prefix with cmd -c)
+		# XXX: untested
 		mklink /d "C:\Program Files (x86)\FreePIE\pylib\Games" "%USERPROFILE%\Documents\crispyControllers\Games"
 		mklink /d "C:\Program Files (x86)\FreePIE\pylib\crispy" "%USERPROFILE%\Documents\crispyControllers\Lib\pylib"
 
@@ -120,7 +124,7 @@ You can also create the links using the included bash script (NB: check it first
 
 
 ### OPTION 2: my patched Console (and GUI) version
-This version is compiled from a Jun 11 2020 (version 1.11.731.0) git snapshot and includes the FreePIE.Console.exe GUI-less version.   No guarantees.
+This version is compiled from a Jun 11 2020 (version 1.11.731.0) git snapshot and includes the FreePIE.Console.exe GUI-less version.
 
 Note that the Console version does not have a Windows event loop which may
 cause problems with plugins that require it.   This version includes a patch to the Joystick plugin to get it to work.
@@ -133,11 +137,8 @@ cause problems with plugins that require it.   This version includes a patch to 
 
 NB: this was last done 2020 and may need to be updated.
 
-To build the FreePIE Console version:
-
 - You'll need Microsoft Visual Studio (I used 2019 Community Edition)
 - Follow the directions in ./build/FreePIE/HOWTO_build.txt
-
 - Once it is built, install as Administrator: ./INSTALL/INSTALL-FreePIE.sh			
 
 
@@ -149,10 +150,19 @@ The FreePIE engine assumes your Python code is only in one file and
 doesn't handle error reporting well for multiple files (and it doesn't
 look easy to fix).  I'd recommended installing Python 3 for Windows to test your code with the included FreePIE simulator shims to get much better error diagnostics.
 
+You can just run it:  python3 main.py
 
-Python for Windows is recommended (instead of Cygwin python) in order to for GameSwitcher to work in the simulator.  You'll need to also install the pywin32 and psutil PIP modules (e.g. pip3 install pywin32)
+
+Python for Windows is recommended (instead of Cygwin python) in order to for GameSwitcher to work in the simulator.  You'll also need to install the pywin32 and psutil PIP modules (e.g. pip3 install pywin32)
 
 Note that FreePIE uses the IronPython 2.7 engine so be wary of 2.7 vs 3.x issues.
+
+------------------------------------------------
+## JoystickTest
+http://www.planetpointy.co.uk/joystick-test-application/
+
+This is invaluable for testing the actual resulting joystick axes.
+My game.py files are written in such a way that they can simply be copied or symlinked into the Game/JoystickTest folder to test them in JoystickTest.
 
 ------------------------------------------------
 ## EDTracker
@@ -165,7 +175,7 @@ The Pro Micro and MPU-9250 are readily available from various places; I got a bu
 I also used these to make it reliable:
 - Amphenol ICC MUSB-K552-30 robust micro-USB jack that just (barely) fits in the Hammond 1551 case.  Delicate soldering job with a .050 ribbon cable.
 - 6" 90-degree micro-USB to female USB-A OTG cable ("port-saver")
-- Weltool HB1 headlamp strap (with a 4x6" piece of 1/4" neoprene foam under the band) to hold the unit (if you don't have a headset to mount it to)
+- Weltool HB1 headlamp strap (with a 4x6" piece of 1/4" neoprene foam under the top band) to hold the unit (if you don't have a headset to mount it to)
 - GafferPower tape to secure it.
 
 ### EDTrackerGUI
@@ -181,8 +191,6 @@ https://github.com/brumster/EDTracker2
 	- do not enable hotkey
 	- follow EDTracker guide to calibrate magnetometer (thoroughly!)
 	- before each use: hold still for 20s and click Auto Gyro Bias
-
-	
 
 ### arduino IDE (not needed)
 https://arduino.cc

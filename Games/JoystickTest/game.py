@@ -52,6 +52,7 @@ class PIEGame(CJRPIEGame):
         # STEER
         self.steer = self.CJRSteer()
         ## Left/Right Mouse
+        # keep it low-scale/accel for fine-control; use keys for coarse
         self.CJRSteerAddLRMouse( self.steer,
             scale = 2.0,            # joy axis travel per mouse pixel
             accel = 1,              # percent of squared movement to add
