@@ -1,5 +1,4 @@
 #IfWinActive, ahk_exe TS2Prototype-WinGDK-Shipping.exe
-; #IfWinActive, ahk_exe TS2Prototype-Win64-Shipping.exe
 
 ; auto-run
 MButton::

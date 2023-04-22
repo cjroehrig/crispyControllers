@@ -4,8 +4,8 @@
 # exclude test cruft in the root (except whitelist below)
 /*.py
 /*.ahk
-# exclude the Windows symlink
-/crispy
+# exclude the Windows symlink?
+#/crispy
 
 # cruft anywhere
 *OLD

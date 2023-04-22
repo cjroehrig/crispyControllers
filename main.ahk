@@ -1,11 +1,11 @@
 ; Global AutoHotKey mainline
 
-; To run from cygwin:  ahk <file> | cat
-
 #Include config.ahk
 
 ;===============================================================================
 ; Definitions and configurations
+; NB: In AutoHotKey, there can be no definitions after the first mapping
+; so we keep definitions and mappings in separate files.
 
 #Include Games/CJRCommon/defs.ahk
 #Include Games/Lotro/defs.ahk
