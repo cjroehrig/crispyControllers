@@ -364,7 +364,9 @@ class LotroWin {
 			y := role.winpos.y
 			width := role.winpos.width + WinBorderX
 			height := role.winpos.height + WinBorderY
-			MoveWin( w.title, x, y, width, height )
+			;MoveWin( w.title, x, y, width, height )
+			; XXX: don't set the window size; do this in-game
+			MoveWin( w.title, x, y )
 			WinGetPos, x, y, width, height, %title%
 			Dbg("Layout AFTER:  [{}]: {}x{} @ {},{}"
 				, w.name, width, height, x, y )

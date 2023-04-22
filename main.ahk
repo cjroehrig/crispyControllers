@@ -10,6 +10,7 @@
 #Include Games/CJRCommon/defs.ahk
 #Include Games/Lotro/defs.ahk
 #Include Games/KingdomCome/defs.ahk
+#Include Games/TSW3/defs.ahk
 
 ;===============================================================================
 ; Hotkey mappings only below here
@@ -28,6 +29,7 @@
 #Include Games/GoogleEarth/mappings.ahk
 #Include Games/KingdomCome/mappings.ahk
 #Include Games/TombRaider/mappings.ahk
+#Include Games/TSW3/mappings.ahk
 ;#Include Games/EliteDangerous/mappings.ahk
 ; FINISHED:
 ;#Include Games/AC2/mappings.ahk
