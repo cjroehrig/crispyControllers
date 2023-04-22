@@ -150,10 +150,16 @@ The FreePIE engine assumes your Python code is only in one file and
 doesn't handle error reporting well for multiple files (and it doesn't
 look easy to fix).  I'd recommended installing Python 3 for Windows to test your code with the included FreePIE simulator shims to get much better error diagnostics.
 
-You can just run it:  python3 main.py
+You first need to create the crispy symlink in the crispyController directory:
 
+	mklink /d crispy Lib\pylib
 
-Python for Windows is recommended (instead of Cygwin python) in order to for GameSwitcher to work in the simulator.  You'll also need to install the pywin32 and psutil PIP modules (e.g. pip3 install pywin32)
+Then you can just run it:  python3 main.py
+
+Python for Windows is recommended (instead of Cygwin python) in order to for GameSwitcher to work in the simulator.  You'll also need to install the pywin32 and psutil PIP modules:
+
+	pip3 install pywin32
+	pip3 install psutil
 
 Note that FreePIE uses the IronPython 2.7 engine so be wary of 2.7 vs 3.x issues.
 
