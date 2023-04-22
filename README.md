@@ -20,17 +20,17 @@ Game						| Description
 -------------------------	| -----------
 EliteDangerous				| Smooth key/mouse and EDTracker
 Euro Truck Simulator 2		| Smooth key/mouse and EDTracker
-Lord of the Rings Online	| Multi-boxing with a mixed-class party (AHK).
+[Lord of the Rings Online](Games/LotRO/README.md)	| Multi-boxing with a mixed-class party (AHK).
 
 ### A Tour 
 File						| Description
 -------------------------	| -----------
-main.py						| FreePIE main
-main.ahk					| AutoHotKey main
-Games/EuroTrucks2/game.py	| an example of the per-game code 
-Lib/pylib/CJRPIEGame.py		| general axes setup functions for all my games
-Lib/pylib/MouseJoy.py		| the keyboard/mouse/tracker to vJoy conversion
-Lib/pylib/GameSwitcher.py	| the game switcher code
+[main.py](main.py)						| FreePIE main
+[main.ahk](main.ahk)					| AutoHotKey main
+[Games/EuroTrucks2/game.py](Games/EuroTrucks2/game.py)	| an example of the per-game code 
+[Lib/pylib/CJRPIEGame.py](Lib/pylib/CJRPIEGame.py)		| general axes setup functions for all my games
+[Lib/pylib/MouseJoy.py](Lib/pylib/MouseJoy.py)		| the keyboard/mouse/tracker to vJoy conversion
+[Lib/pylib/GameSwitcher.py](Lib/pylib/GameSwitcher.py)	| the game switcher code
 
 
 ------------------------------------------------------------------------------

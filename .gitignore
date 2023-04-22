@@ -5,7 +5,7 @@
 /*.py
 /*.ahk
 # exclude the Windows symlink?
-#/crispy
+/crispy
 
 # cruft anywhere
 *OLD
