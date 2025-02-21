@@ -20,6 +20,7 @@ get the most natural-feeling keyboard and mouse analog steering I could.
 
 
 ### Example Games:
+
 Game						| Description
 -------------------------	| -----------
 EliteDangerous				| Smooth key/mouse and EDTracker
@@ -27,6 +28,7 @@ Euro Truck Simulator 2		| Smooth key/mouse and EDTracker
 [Lord of the Rings Online](Games/Lotro/README.md)	| Multi-boxing with a mixed-class party (AHK).
 
 ### A Tour 
+
 File						| Description
 -------------------------	| -----------
 [main.py](main.py)						| FreePIE main
