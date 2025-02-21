@@ -24,7 +24,7 @@ if ( WinVersion == 10 ) {
 
 ;===============================================================================
 class LotroRole {
-	; This class holds 
+	; This class holds the definition for a class role.
 	;==========================================================================
 	; Class properties
 	static RoleList := []			; the list of all defined LotroRoles
@@ -35,9 +35,6 @@ class LotroRole {
 	; to the constructor.
 	name := false			; This is used to create a window's title
 	idx := -1				; the index in the RoleList
-
-	; Window position: default to 1280x720
-	winpos := { width: 1280, 	height: 720,	x:0,	y:0 }
 
 	; These 2 are arrays of the same length as bindings.skills:
 	skilltarget := false	; array of remote skill targets
@@ -54,6 +51,12 @@ class LotroRole {
 ;				  	(-1, 0, 1-N, role  - as defined for skilltarget)
 	defaultfellow := false	; default fellow for hotkey actions from this win
 ;					(1-N, or role)
+	; Window position and layout filenames
+;			lo    - layout filename for /ui layout load (foreground window)
+;			lo_bg - layout filename for /ui layout load (background window)
+	winpos := { x:0, y:0, lo:"UNSET", lo_bg:"UNSETBG" }
+;	winpos := false
+
 
 
 
@@ -96,8 +99,8 @@ class LotroRole {
 	{
 		Dbg( "LotroRole[{}] name : {}:", this.idx, this.name )
 		wpos := this.winpos
-		Dbgnt( "      {:-15s} : {},{}  {},{}", "w,h  x,y"
-			,wpos.width, wpos.height, wpos.x, wpos.y )
+		Dbgnt( "      {:-15s} : {},{}  {},{}", "x,y lo,lo_bg"
+			,wpos.x, wpos.y, wpos.lo, wpos.lo_bg )
 
 		Dbgnt( "      {:-15s} : {} ", "skilltarget", Repr(this.skilltarget))
 		Dbgnt( "      {:-15s} : {} ", "skillassist", Repr(this.skillassist))
@@ -135,6 +138,8 @@ class LotroWin {
 	fulltitle		:= false		; The window's full title (with extra info)
 	role			:= false		; The window's LotroRole object
 	fellows			:= []			; array of LotroWin fellows (in party order)
+
+	winpos			:= false		; currently set window position/layout
 
 
 	;========================================
@@ -207,7 +212,9 @@ class LotroWin {
 	; is still running from last time.
 	{
 		while ( LotroWin.WindowList.Length() > 0 ){
-			LotroWin.WindowList[1].destroy()
+			win := LotroWin.WindowList[1]
+			SetWindowTitle(win.title, "The Lord of the Rings Online")
+			win.destroy()
 		}
 		for k, v in LotroWin._selectstate {
 			LotroWin._selectstate[k] := false
@@ -322,57 +329,72 @@ class LotroWin {
 	}
 
 	;========================================
-	LayoutWindowed()
-	; Class method to layout all windows in windowed mode.
+	SetLayout(winpos)
+	; Class method to set Active window to winpos, and
+	; all others to their role's background winpos
 	{
 		global WinBorderX, WinBorderY
-		global LotroLayout_w, LotroLayout_wbg
 		cmd := "/ui layout load "
 		active := LotroWin.Active
 		for k, w in LotroWin.WindowList {
 			title := w.title
-			role := w.role
 			WinGetPos, x, y, width, height, %title%
 			Dbg("Layout BEFORE: [{}]: {}x{} @ {},{}"
 				, w.name, width, height, x, y )
-			x := role.winpos.x
-			y := role.winpos.y
-			width := role.winpos.width + WinBorderX
-			height := role.winpos.height + WinBorderY
-			;MoveWin( w.title, x, y, width, height )
-			; XXX: don't set the window size; do this in-game
+
+			if ( w.title == active.title ) {
+				; Foreground; use parm (or role if false)
+				if ( winpos ) {
+					wpos := winpos
+					Dbgnt( "Layout: FG setting from parm: {},{}  {}",
+						,wpos.x, wpos.y, wpos.lo )
+				} else {
+					wpos := w.role.winpos
+					Dbgnt( "Layout: FG setting from role: {},{}  {}",
+						,wpos.x, wpos.y, wpos.lo )
+				}
+				w.winpos := wpos
+				layout := wpos.lo
+				chat := ""
+			} else {
+				; Background; use current or role 
+				wpos := w.winpos
+				if ( wpos ) {
+					; wait, why?  why not just set according to role?
+					; OH: role assumes 720; if bg is 'big', don't move it
+					; XXX: this needs a rework: 
+					;    Alt-A moves and loads layouts intelligently
+					; 	   Dynamically determine the layout according to W,H !
+					;	   REMEMBER the currently loaded layout so I don't issue
+					;      extraneous chat commands
+					;    Ctrl-Alt-A forces move/reload
+					Dbgnt( "Layout: BG using curr: {},{}  {}",
+						,wpos.x, wpos.y, wpos.lo_bg )
+				} else {
+					; position has not yet been set; set it
+					wpos := w.role.winpos
+					w.winpos := wpos
+					Dbgnt( "Layout: BG assigning from role: {},{}  {}",
+						,wpos.x, wpos.y, wpos.lo_bg )
+				}
+				layout := wpos.lo_bg
+				chat := w.title
+			}
+			x := wpos.x
+			y := wpos.y
+			; don't set width anymore; set via in-game Windowed Mode
+			;width := wpos.width + WinBorderX
+			;height := wpos.height + WinBorderY
 			MoveWin( w.title, x, y )
 			WinGetPos, x, y, width, height, %title%
 			Dbg("Layout AFTER:  [{}]: {}x{} @ {},{}"
 				, w.name, width, height, x, y )
-			if ( w.title == active.title ) {
-				SendChat("", cmd . LotroLayout_w . "{Enter}")
-			} else {
-				SendChat(w.title, cmd . LotroLayout_wbg . "{Enter}")
-			}
+
+			SendChat(chat, cmd . layout . "{Enter}")
 		}
 		return
 	}
 
-	;========================================
-	LayoutFullscreen()
-	; Class method to layout all windows with Active in fullscreen
-	; XXX: this should really be called LoadAllUILayouts()
-	{
-		global FullScreen
-		global LotroLayout_f, LotroLayout_wbg
-		cmd := "/ui layout load "
-		active := LotroWin.Active
-		;MoveWin( "A", 0, 0, FullScreen.width, FullScreen.height )
-		for k, w in LotroWin.WindowList {
-			if ( w.title == active.title ) {
-				SendChat("", cmd . LotroLayout_f . "{Enter}")
-			} else {
-				SendChat(w.title, cmd . LotroLayout_wbg . "{Enter}")
-			}
-		}
-		return
-	}
 
 	;========================================
 	FollowerHotKey(hotkeystr, delay:=0, nudge:=0)
@@ -388,6 +410,39 @@ class LotroWin {
 			Send, %keystr%					; send to active window
 		}
 	}
+
+	;========================================
+	FollowerSend(msg, delay=0, assist=true)
+	; If the active window is a LotroWin, then send msg to itself and
+	; all followers.
+	; Otherwise send it to the active window.
+	; Delay (ms) is how long to sleep between fellows.y
+	; If assist=true then "assist" the leader before sending the message.
+	{
+		win := LotroWin.Active
+		if (win) {
+			win.follower_send(msg, delay, assist)
+		} else {
+			; not a LotroWin; just an ordinary LotRO instance
+			Send, %msg%					; send to active window
+		}
+	}
+
+	;========================================
+	FollowerSendChat(msg, delay=0, assist=true)
+	; If the active window is a LotroWin, then send chat msg to itself and
+	; all followers.
+	; Otherwise send it to the active window.
+	{
+		win := LotroWin.Active
+		if (win) {
+			win.follower_sendchat(msg, delay, assist)
+		} else {
+			; not a LotroWin; just an ordinary LotRO instance
+			SendChat(GetActiveTitle(), msg)
+		}
+	}
+
 
 	;========================================
 	DumpAll()
@@ -438,6 +493,7 @@ class LotroWin {
 		this.role := role
 		this.defaultfellow := role.defaultfellow
 		this.currtarget := role.defaulttarget
+		this.winpos := role.winpos
 	}
 
 	;========================================
@@ -629,6 +685,49 @@ class LotroWin {
 						SendWin(win.title, str)
 					}
 				}
+			}
+		}
+	}
+	;========================================
+	follower_send(msg, delay:=0, assist=true)
+	; send msg to self and any following windows (after a possible delay).
+	; Delay is in milliseconds.
+	{
+		SendWin(this.title, msg)		; send to me
+		for k, win in LotroWin.WindowList {
+			if ( win.commander == this ) {
+				; sleep first
+				if ( delay > 0 ) {
+					Dbg("[{}]: Sleeping {} ms", this.name, delay )
+					Sleep(delay)
+				}
+				; assist me and send msg
+				if ( assist ) {
+					SendWin(win.title, win.assist_str(this))
+				}
+				SendWin(win.title, msg)
+			}
+		}
+	}
+
+	;========================================
+	follower_sendchat(msg, delay:=0, assist=true)
+	; send chat msg to self and any following windows (after a possible delay).
+	; Delay is in milliseconds.
+	{
+		SendChat(this.title, msg)		; send to me
+		for k, win in LotroWin.WindowList {
+			if ( win.commander == this ) {
+				; sleep first
+				if ( delay > 0 ) {
+					Dbg("[{}]: Sleeping {} ms", this.name, delay )
+					Sleep(delay)
+				}
+				; assist me and send msg
+				if ( assist ) {
+					SendWin(win.title, win.assist_str(this))
+				}
+				SendChat(win.title, msg)
 			}
 		}
 	}
@@ -954,6 +1053,9 @@ class LotroWin {
 	{
 		Dbg( "LotroWin[{}] name : {}:", this.idx, this.name )
 		Dbgnt( "      {:-15s} : [{}]{} ", "role", this.role.idx, this.role.name)
+		wpos := this.winpos
+		Dbgnt( "      {:-15s} : {},{}  {},{}", "x,y lo,lo_bg"
+			,wpos.x, wpos.y, wpos.lo, wpos.lo_bg )
 		Dbgnt( "      {:-15s} : {} ", "title", this.title )
 		Dbgnt( "      {:-15s} : {} ", "fulltitle", this.fulltitle )
 		Dbgnt( "      {:-15s} : {} ", "following"

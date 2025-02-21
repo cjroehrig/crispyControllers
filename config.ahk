@@ -13,19 +13,25 @@
 #UseHook On
 SendMode Input
 
-; LotRO doesn't accept keystrokes unless it is active/has focus
+; Don't send spurious Ctrl !
+#MenuMaskKey vkE8
+
+; Lotro doesn't accept keystrokes unless it is active/has focus
 ; so we need to use ControlFocus; this sets delay (ms) to wait after 
 ; setting focus before sending keystroke.  Default = 20ms
 ;SetControlDelay 0
 SetControlDelay 20
 
-; LotRO sometimes drops keys when sending long chat strings
+; Lotro sometimes drops keys when sending long chat strings
 ;  SetKeyDelay Delay, PressDuration   # values in ms
 SetKeyDelay, 10, 10
 
 ; Delay after WinActivate (Default=100ms)
 SetWinDelay 100
 #WinActivateForce
+
+; key repeat limit
+#MaxHotkeysPerInterval 200
 
 SetTitleMatchMode 1		; leading match for window titles
 
@@ -43,7 +49,7 @@ switch Hostname
 ; io Config
 #Include Lib/ahk/io.ahk
 
-;; delay between Sends (needed to avoid some WarSteed dismount bugs)
+;; delay between Sends (needed to avoid some Lotro WarSteed dismount bugs)
 SendDelay = 10
 
 ;; delays between ControlFocus and sends

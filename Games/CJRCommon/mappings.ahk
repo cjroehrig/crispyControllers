@@ -1,5 +1,8 @@
 ; XXX: watch out for this...
-^!p::	Process_Resume("KingdomCome.exe")
+^!p::	
+		Process_Resume("KingdomCome.exe")
+		Process_Resume("HogwartsLegacy.exe")
+		return
 ;===============================================================================
 ; CJR's Common Hotkey definitions -- active for all windows/programs
 
@@ -20,18 +23,32 @@
 #IfWinNotActive
 
 
-; Media Keys to VLC
-; (shift-F7-F9)
-+F7::			ControlSend, , {Alt down}{Left}{Alt up},	ahk_exe vlc.exe
-+F8::			ControlSend, , {space},						ahk_exe vlc.exe
-+F9::			ControlSend, , {Alt down}{Right}{Alt up},	ahk_exe vlc.exe
-; Razor Naga Alt-bottom row
-; (~ == Pass through)
-!NumpadDiv::	ControlSend, , {Alt down}{Left}{Alt up},	ahk_exe vlc.exe
-!Numpad0::		ControlSend, , {space},						ahk_exe vlc.exe
-	; NB: Alt-space brings up a window's title-bar menu;  this
-	; occasionally spuriously pops up in VLC when I use this...
-!NumpadEnter::	ControlSend, , {Alt down}{Right}{Alt up},	ahk_exe vlc.exe
+;=====================================================================
+; Media Keys to VLC, Calibre
+; 	Logitech:  F8/F9/F10
+;	Razor Naga Alt-bottom row Numpad Div/0/Enter
+; XXX:  Calibre (7.4) has no TTS hotkey support yet...
+
+; BACK
++F8::
+!NumpadDiv::
+	ControlSend, , {Alt down}{Left}{Alt up},	ahk_exe vlc.exe
+;	ControlSend, , {Alt down}{Left}{Alt up},	ahk_exe calibre-parallel.exe
+	return
+
+; PAUSE/PLAY
++F9::
+!Numpad0::
+	ControlSend, , {space},						ahk_exe vlc.exe
+	return
+
+; FWD
++F10::
+!NumpadEnter::
+	ControlSend, , {Alt down}{Right}{Alt up},	ahk_exe vlc.exe
+	return
+
+;=====================================================================
 
 
 ; XXX: doesn't work.  Calibre/Qt doesn't seem to respond the same way...

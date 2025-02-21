@@ -25,6 +25,9 @@ Numpad2:: 	]
 ; Automatic (Train) Brakes: ' ;
 Numpad3:: 	'
 ^Numpad3:: 	`;
+; "Lap":
+Numpad6:: 	/
+; Emergency:
 Numpad5:: 	Backspace
 PgUp::		\
 ;PgDn::		+\			No, just hold shift when pressing PgUp
@@ -35,8 +38,6 @@ Numpad0:: 	0
 
 ; !z::		F1
 
-;Numpad3:: 
-;Numpad6:: 
 ;Numpad8:: 			# bound in-game
 ;Numpad9:: 			# bound in-game
 ;NumpadDiv::

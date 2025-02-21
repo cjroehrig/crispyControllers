@@ -51,6 +51,15 @@ class AutoKey {
 	}
 
 	;=======================================
+	Toggle(key)
+	;  Toggle auto for 'key'. 'key' is a string of the key name (e.g. 'w').
+	{
+		key_state := AutoKey.Get(key)
+		key_state.keyToggle()
+	}
+
+
+	;=======================================
 	Get(key)
 	; CLASS METHOD: Return a AutoKey object for key.
 	{
@@ -96,16 +105,23 @@ class AutoKey {
 	keyOff()
 	; Turn off auto.
 	{
-; XXX: seems to get stuck down sometimes.
-;  Auto-repeat doesn't turn off.
-;		if ( this.autoOn ){
-			t := A_TickCount
-			seq := "{" . this.key . " Up}"
-			Send, %seq%
-			Dbg("AUTOKEY({}) AUTO-X  dt={:.3f}",this.key, (t-this.lastEv)/1000)
-			this.autoOn := false
-			this.lastEv := t
-;		}
+		t := A_TickCount
+		seq := "{" . this.key . " Up}"
+		Send, %seq%
+		Dbg("AUTOKEY({}) AUTO-X  dt={:.3f}",this.key, (t-this.lastEv)/1000)
+		this.autoOn := false
+		this.lastEv := t
+	}
+
+	keyOn()
+	; turn auto on for key
+	{
+		t := A_TickCount
+		seq := "{" . this.key . " Down}"
+		Send, %seq%
+		Dbg("AUTOKEY({}) AUTO-ON", this.key )
+		this.autoOn := true
+		this.lastEv := t
 	}
 
 	keyDown()
@@ -125,6 +141,16 @@ class AutoKey {
 		this.lastEv := t
 		seq := "{" . this.key . " Down}"
 		Send, %seq%
+	}
+
+	keyToggle()
+	; Toggle the state of key.
+	{
+		if ( this.autoOn ){
+			this.KeyOff()
+		} else {
+			this.KeyOn()
+		}
 	}
 
 }

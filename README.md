@@ -170,6 +170,10 @@ http://www.planetpointy.co.uk/joystick-test-application/
 This is invaluable for testing the actual resulting joystick axes.
 My game.py files are written in such a way that they can simply be copied or symlinked into the Game/JoystickTest folder to test them in JoystickTest.
 
+Requires:
+	- dotnetfx35.exe  (x86)
+	- directx9 (x86)
+
 ------------------------------------------------
 ## EDTracker
 https://hobbycomponents.com/electronics/440-diy-head-tracker-bundle
@@ -187,8 +191,15 @@ I also used these to make it reliable:
 ### EDTrackerGUI
 https://github.com/brumster/EDTracker2
 - Open EDTracker2-GUI-V4.0.4.zip from ./PKG/EDTracker
-	and drag the EDTrackerUI404 folder to:
-	C:/$PF/EDTrackerUI
+	and drag the EDTrackerUI404 folder to: C:/$PF/EDTrackerUI
+- Fix permissions (set executable): 
+	fixperm -RW .
+	OR: use icacls:
+		icacls . /reset /t/c/l/q
+		icacls . /setowner MYCOMP\myuser /t/c/l/q		# change accordingly
+		icacls . /grant:r MYCOMP\myuser:(OI)(CI)F
+	OR: use Properties > Security
+
 
 - Settings: 
 	- Yaw, Pitch scaling to 1.00 (or -1.00 to get correct orientation)

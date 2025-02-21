@@ -4,50 +4,33 @@
 #Include Lib/ahk/numerical.ahk
 #Include Games/Lotro/LotroWin.ahk
 
-; define window positions 
+LotroWP := []		; declare array of winpos
+
 switch Hostname {
 
 case "aquila":
-	; 2560x1440
-	LotroWinPos_topleft  :=	{ width: 1280, 	height: 720,	x:0,	y:0		}
-	LotroWinPos_topright :=	{ width: 1280, 	height: 720,	x:1264,	y:0		}
-	LotroWinPos_botleft  :=	{ width: 1280, 	height: 720,	x:0,	y:682	}
-	LotroWinPos_botright :=	{ width: 1280, 	height: 720,	x:1264,	y:682 	}
-	LotroLayout_f := "f1440"
-	LotroLayout_w := "w"
-	LotroLayout_wbg := "wbg"
+	; Screensize: 2560x1440
+	; Nominal windowed size: 720p (1280x720)
+
+	LotroWP[0]  :=	{ x:0,		y:0,	lo:"1440",	lo_bg:"1440_bg" } ;fullscrn
+	LotroWP[1]  :=	{ x:0,		y:0,	lo:"720",	lo_bg:"720_bg" } ; top left
+	LotroWP[2]  :=	{ x:1264,	y:0,	lo:"720",	lo_bg:"720_bg" } ; top right
+	LotroWP[3]  :=	{ x:0,		y:682,	lo:"720",	lo_bg:"720_bg" } ; bot left
+	LotroWP[4]  :=	{ x:1264,	y:682, 	lo:"720",	lo_bg:"720_bg" } ; bot right
+	LotroWP[5]  :=	{ x:78,		y:324, 	lo:"1920",	lo_bg:"1920_bg" } ; big
 
 default:
-	; 1920x1080
-	LotroWinPos_topleft  :=	{ width: 1280, 	height: 720,	x:0,	y:0		}
-	LotroWinPos_topright :=	{ width: 1280, 	height: 720,	x:624,	y:0		}
-	LotroWinPos_botleft  :=	{ width: 1280, 	height: 720,	x:0,	y:322	}
-	LotroWinPos_botright :=	{ width: 1280, 	height: 720,	x:624,	y:322 	}
-	LotroLayout_f := "f"
-	LotroLayout_w := "w"
-	LotroLayout_wbg := "wbg"
+	; Screensize: 1920x1080 
+	; Nominal windowed size: 720p (1280x720)
+	LotroWP[0]  :=	{ x:0,		y:0,	lo:"1920",	lo_bg:"1920_bg" } ;fullscrn
+	LotroWP[1]  :=	{ x:0,		y:0,	lo:"720",	lo_bg:"720_bg" } ; top left
+	LotroWP[2]  :=	{ x:624,	y:0,	lo:"720",	lo_bg:"720_bg" } ; top right
+	LotroWP[3]  :=	{ x:0,		y:322,	lo:"720",	lo_bg:"720_bg" } ; bot left
+	LotroWP[4]  :=	{ x:624,	y:322, 	lo:"720",	lo_bg:"720_bg" } ; bot right
+	LotroWP[5]  :=	{ x:0,		y:322, 	lo:"720",	lo_bg:"720_bg" } ; big
 }
 
-;	; XXX: MODES not needed anymore; just define all Roles here.
-;	; Read file to determine current Lotro mode
-;	Fileread, LotroMode, Games/Lotro/MODE
-;	LotroMode := RegExReplace(LotroMode, "#[^\n]*")
-;	LotroMode := RegExReplace(LotroMode, "\s")
-;	LotroMode := StrReplace(LotroMode, "`r")
-;	LotroMode := StrReplace(LotroMode, "`n")
-;
-;	; Can't #include a string or variable...
-;	switch LotroMode {
-;	case "Trio":
-;		#Include Games/Lotro/defs-Trio.ahk
-;	default:
-;		Dbg("AutoHotKey LotRO: Unknown or Missing Lotro/MODE: " + LotroMode )
-;	}
-;	Dbg( "AutoHotKey LotRO ({}) starting on host {}", LotroMode, Hostname )
-
-
-
-	Dbg( "AutoHotKey LotRO starting on host {}", Hostname )
+Dbg( "AutoHotKey LotRO starting on host {}", Hostname )
 
 
 ;==============================================================================
@@ -108,32 +91,32 @@ LotroBindings := {_:0
 ;===========================================================
 ; DPS
 new LotroRole( "DPS"
-		,{winpos: LotroWinPos_botleft
-		,bindings: LotroBindings
+		,{bindings: LotroBindings
 		,skilltarget:[ -2, -2, -2, -2, -2, -2 ]		; -1=none; -2=defaulttarget
 		,skillassist:[  1,  1,  1,  1,  1,  1 ]		; Assist
 		,defaulttarget: 	"TANK"
 		,defaultfellow: 	"HEAL"
+		,winpos: LotroWP[3]							; bot left
 		,_:0})
 
 ;===========================================================
 ; HEAL
 new LotroRole( "HEAL"
-		,{winpos: LotroWinPos_topleft
-		,bindings: LotroBindings
+		,{bindings: LotroBindings
 		,skilltarget:[ -2, -2, -2, -2, -2, -2 ]		; -1=none; -2=defaulttarget
 		,skillassist:[  0,  0,  0,  0,  0,  0 ]		; no Assist (target)
 		,defaulttarget: 	"DPS"					; (tank gets AoE heals)
 		,defaultfellow: 	"TANK"
+		,winpos: LotroWP[1]							; top left
 		,_:0})
 
 ;===========================================================
 ; TANK
 new LotroRole( "TANK"
-		,{winpos: LotroWinPos_topright
-		,bindings: LotroBindings
+		,{bindings: LotroBindings
 		,skilltarget:[ -2, -2, -2, -2, -2, -2 ]		; -1=none; -2=defaulttarget
 		,skillassist:[  1,  1,  1,  1,  1,  1 ]		; Assist
 		,defaulttarget: 	"DPS"
 		,defaultfellow: 	"DPS"
+		,winpos: LotroWP[2]							; top right
 		,_:0})

@@ -35,8 +35,9 @@
 
 ;==============================================================================
 ; Window layout & position
-!a::		LotroWin.LayoutWindowed()			; Alt A		layout windowed
-!q::		LotroWin.LayoutFullScreen()			; Alt Q		layout fullscreen
+!q::	LotroWin.SetLayout(LotroWP[0])	; Alt Q			fullscreen
+!a::	LotroWin.SetLayout(false)		; Alt A			windowed, by role
+^!a::	LotroWin.SetLayout(LotroWP[5])	; Ctrl-Alt A	windowed, big
 
 ;==============================================================================
 ; FOLLOWING 
@@ -81,11 +82,49 @@ c::		LotroWin.FollowerHotkey(A_ThisHotkey, 200)	; warsteed stop
 +=::					; Outfit 2: Travel
 ^=::					; Outfit 3: Rain
 ^+=::					; Outfit 4: Snow
-!=::					; Outfit 5: Festival
-!+=::					; Outfit 6: Relax
-!^=::					; Outfit 7: 
+!=::					; Outfit 5: Casual around town
+!+=::					; Outfit 6: Casual at home
+!^=::					; Outfit 7: Formal/Ceremonial dress
+!+^=::					; Outfit 8: Festival/Party
 		LotroWin.FollowerHotkey(A_ThisHotkey)
 		return
+
+;------------------------------------------------------------------------------
+; DANCE MOVES  -- for learning racial "Dances With" festival quests
+; NB: overrides fellowship target marking bindings Alt-1-4
+; NB: Ensure all fellows are FOLLOWING and commander has Dance Leader selected.
+;  - followers will automatically "assist" the commander and select Dance Leader
+;  - Hobbit esp.: can't click on Oger Brockhouse once he is on stage(!)
+; NB: Next phase *MAY* start immediately with no Rest (esp. Man)
+;  - Keep mouse positioned over quest icon on a follower window to keep track.
+;  - watch timers...?
+; NB: Do NOT start clicking!  You will lose leader as target! 
+;  - Stick to ONLY these hotkeys;  can insert extraneous dances: e.g. repeat !3
+; PHASE 1
+;;!1:: LotroWin.FollowerSendChat("/dance1{Enter}")
+;;; PHASE 2
+;;!2::		
+;;	LotroWin.FollowerSendChat("/dance2{Enter}")
+;;	Sleep(1100)
+;;	LotroWin.FollowerSendChat("/dance3{Enter}")
+;;	return
+;;; PHASE 3
+;;!3::		
+;;	LotroWin.FollowerSendChat("/dance2{Enter}")
+;;	Sleep(1100)
+;;	LotroWin.FollowerSendChat("/dance2{Enter}")
+;;	Sleep(1100)
+;;	LotroWin.FollowerSendChat("/dance3{Enter}")
+;;	return
+;;; PHASE 4
+;;!4::		
+;;	LotroWin.FollowerSendChat("/dance3{Enter}")
+;;	Sleep(1100)
+;;	LotroWin.FollowerSendChat("/dance1{Enter}")
+;;	Sleep(1100)
+;;	LotroWin.FollowerSendChat("/dance3{Enter}")
+;;	return
+;------------------------------------------------------------------------------
 
 ; Target and use nearest object (SELECTED or defaultfellow) - Ctrl-backquote
 ; NB: fellow_send takes a string in Send format, not hotkey format.

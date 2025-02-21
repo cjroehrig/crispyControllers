@@ -11,7 +11,7 @@ a Up::	AutoKey.Up("a")
 +d::		Send h				; mount (use Send prevents Shift toggle)
 
 ; 
-^PgDn::		End					; CraftStore
+!PgDn::		End					; CraftStore
 
 ; Do these here (UNBOUND in-game) so I can use modifiers...
 ; NB: Shift doesn't seem to work...
@@ -22,7 +22,7 @@ Numpad4::	l					; Journal/Quest menu
 Numpad6::	[					; Collections
 Numpad7::	m					; map
 Numpad8::	o					; Social
-^Numpad8::	Send p				; Group	(NB: shift doesn't work...)
+!Numpad8::	Send p				; Group	(NB: shift doesn't work...)
 Numpad9::	Send {Backspace}=-	; toggle UI/nameplates/healthbars
 NumpadDiv::	J					; Cycle focused quest
 Numpad0::	.					; Toggle in-game cursor

@@ -163,7 +163,7 @@ SendChat(wintitle, text)
 			Dbg("SENDCHAT({}): {}", wintitle, text)
 			ControlFocus, ,%wintitle%
 			ControlSend, , %text%, %wintitle%
-			UnfocusWin(wintitle)		; send back to background 
+;			UnfocusWin(wintitle)		; send back to background 
 		}
 	} else {
 		Dbg("SENDCHAT({}): {}", "ACTIVE", text)
@@ -193,7 +193,7 @@ SendWin(wintitle, keys)
 			FocusWin(wintitle)
 			Dbg("SEND({}): {}", wintitle, keys)
 			ControlSend, , %keys%, %wintitle%
-			UnfocusWin(wintitle)
+;			UnfocusWin(wintitle)
 		}
 	} else {
 		Dbg("SEND({}): {}", "ACTIVE", keys)
