@@ -1,5 +1,7 @@
 # crispyControllers
 
+https://github.com/cjroehrig/crispyControllers
+
 A framework and library for FreePIE and AutoHotKey with examples.
 Feel free to use any code you find useful.
 
@@ -31,12 +33,12 @@ Euro Truck Simulator 2		| Smooth key/mouse and EDTracker
 
 File						| Description
 -------------------------	| -----------
-[main.py](main.py)						| FreePIE main
-[main.ahk](main.ahk)					| AutoHotKey main
-[Games/EuroTrucks2/game.py](Games/EuroTrucks2/game.py)	| an example of the per-game code 
-[Lib/pylib/CJRPIEGame.py](Lib/pylib/CJRPIEGame.py)		| general axes setup functions for all my games
-[Lib/pylib/MouseJoy.py](Lib/pylib/MouseJoy.py)		| the keyboard/mouse/tracker to vJoy conversion
-[Lib/pylib/GameSwitcher.py](Lib/pylib/GameSwitcher.py)	| the game switcher code
+[main.py](https://github.com/cjroehrig/crispyControllers/blob/main/main.py)						| FreePIE main
+[main.ahk](https://github.com/cjroehrig/crispyControllers/blob/main/main.ahk)					| AutoHotKey main
+[Games/EuroTrucks2/game.py](https://github.com/cjroehrig/crispyControllers/blob/main/Games/EuroTrucks2/game.py)	| an example of the per-game code 
+[Lib/pylib/CJRPIEGame.py](https://github.com/cjroehrig/crispyControllers/blob/main/Lib/pylib/CJRPIEGame.py)		| general axes setup functions for all my games
+[Lib/pylib/MouseJoy.py](https://github.com/cjroehrig/crispyControllers/blob/main/Lib/pylib/MouseJoy.py)		| the keyboard/mouse/tracker to vJoy conversion
+[Lib/pylib/GameSwitcher.py](https://github.com/cjroehrig/crispyControllers/blob/main/Lib/pylib/GameSwitcher.py)	| the game switcher code
 
 
 ------------------------------------------------------------------------------
